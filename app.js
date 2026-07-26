@@ -287,6 +287,20 @@ episodeSearch.addEventListener("focus", () => {
   playBlipSound();
 });
 
+const fullscreenBtn = document.getElementById("fullscreen-btn");
+if (fullscreenBtn) {
+  fullscreenBtn.addEventListener("click", () => {
+    playBlipSound();
+    if (videoPlayer.requestFullscreen) {
+      videoPlayer.requestFullscreen();
+    } else if (videoPlayer.webkitRequestFullscreen) {
+      videoPlayer.webkitRequestFullscreen();
+    } else if (videoPlayer.msRequestFullscreen) {
+      videoPlayer.msRequestFullscreen();
+    }
+  });
+}
+
 // ==========================================================================
 // CONSULTAS API GOOGLE DRIVE v3
 // ==========================================================================

@@ -27,7 +27,16 @@ const marqueeText = document.getElementById("marquee-text");
 const errorScreen = document.getElementById("error-screen");
 const errorDetailsText = document.getElementById("error-details-text");
 
-// watched list y bandera de restauración
+// Referencias de controles de la TV y pantalla completa
+const screenWrapper = document.getElementById("screen-wrapper");
+const tvPowerBtn = document.getElementById("tv-power");
+const tvPrevBtn = document.getElementById("tv-prev");
+const tvNextBtn = document.getElementById("tv-next");
+const fullscreenBtn = document.getElementById("fullscreen-btn");
+const fsCloseBtn = document.getElementById("fs-close-btn");
+
+// watched list, bandera de restauración y estado de energía
+let tvPowerOn = true;
 let watchedEpisodes = JSON.parse(localStorage.getItem("retroStream_watched") || "[]");
 let restoringState = false; // Bandera para evitar reproducir audio durante auto-carga
 
@@ -94,6 +103,38 @@ function playCoinSound() {
     
     osc.start();
     osc.stop(now + 0.35);
+  } catch (e) {
+    console.error("Audio error:", e);
+  }
+}
+
+// Sonido Power (Encendido / Apagado)
+function playPowerSound(isOn) {
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    if (isOn) {
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(80, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.25);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    } else {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(250, now);
+      osc.frequency.exponentialRampToValueAtTime(30, now + 0.35);
+      gain.gain.setValueAtTime(0.07, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    }
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(now + 0.4);
   } catch (e) {
     console.error("Audio error:", e);
   }
@@ -287,16 +328,139 @@ episodeSearch.addEventListener("focus", () => {
   playBlipSound();
 });
 
-const fullscreenBtn = document.getElementById("fullscreen-btn");
+// Botón de POWER (Encendido / Apagado)
+if (tvPowerBtn) {
+  tvPowerBtn.addEventListener("click", () => {
+    tvPowerOn = !tvPowerOn;
+    
+    if (tvPowerOn) {
+      // Encender TV
+      tvPowerBtn.classList.remove("off");
+      playPowerSound(true);
+      
+      // Restaurar fondo de ruido y estática
+      staticScreen.style.backgroundImage = "";
+      staticScreen.style.backgroundColor = "";
+      
+      // Reactivar reproducción del último video si existe
+      const lastEpisode = localStorage.getItem("retroStream_lastEpisode");
+      if (lastEpisode) {
+        const card = document.querySelector(`.episode-card[data-id="${lastEpisode}"]`);
+        if (card) {
+          const cleanName = cleanFileName(card.querySelector(".ep-title").textContent);
+          selectAndPlayEpisode(lastEpisode, cleanName, card);
+          return;
+        }
+      }
+      
+      // Si no hay video, mostrar estática
+      staticScreenText.innerHTML = "INSERT COIN<br><br>SELECCIONA UN CAPITULO";
+      staticScreen.style.opacity = "1";
+      staticScreen.style.display = "flex";
+      indicatorPlay.classList.remove("green");
+      indicatorPlay.classList.add("red");
+      setMarqueeMessage("TV RETRO ENCENDIDA. INSERTA MONEDA.");
+    } else {
+      // Apagar TV
+      tvPowerBtn.classList.add("off");
+      playPowerSound(false);
+      
+      // Detener video e indicadores
+      videoPlayer.src = "";
+      indicatorPlay.classList.remove("green", "red");
+      
+      // Apagar pantalla (negro absoluto, sin ruido)
+      staticScreen.style.backgroundImage = "none";
+      staticScreen.style.backgroundColor = "#000";
+      staticScreenText.innerHTML = "";
+      staticScreen.style.opacity = "1";
+      staticScreen.style.display = "flex";
+      
+      const topTitle = document.getElementById("current-episode-title-top");
+      if (topTitle) {
+        topTitle.textContent = "APAGADO";
+        topTitle.classList.remove("active-playing");
+      }
+      setMarqueeMessage("TV RETRO APAGADA. PRESIONA POWER PARA ENCENDER.");
+    }
+  });
+}
+
+// Botón ANTERIOR (Prev)
+if (tvPrevBtn) {
+  tvPrevBtn.addEventListener("click", () => {
+    if (!tvPowerOn) return;
+    playBlipSound();
+    
+    const activeCard = document.querySelector(".episode-card.active");
+    let targetCard = null;
+    
+    if (activeCard) {
+      targetCard = activeCard.previousElementSibling;
+    }
+    
+    // Si no hay tarjeta activa o no hay elemento anterior, vamos al último
+    if (!targetCard) {
+      const cards = document.querySelectorAll(".episode-card");
+      if (cards.length > 0) {
+        targetCard = cards[cards.length - 1];
+      }
+    }
+    
+    if (targetCard) {
+      targetCard.scrollIntoView({ block: "center", behavior: "smooth" });
+      targetCard.click();
+    }
+  });
+}
+
+// Botón SIGUIENTE (Next)
+if (tvNextBtn) {
+  tvNextBtn.addEventListener("click", () => {
+    if (!tvPowerOn) return;
+    playBlipSound();
+    
+    const activeCard = document.querySelector(".episode-card.active");
+    let targetCard = null;
+    
+    if (activeCard) {
+      targetCard = activeCard.nextElementSibling;
+    }
+    
+    // Si no hay tarjeta activa o no hay elemento siguiente, vamos al primero
+    if (!targetCard) {
+      targetCard = document.querySelector(".episode-card");
+    }
+    
+    if (targetCard) {
+      targetCard.scrollIntoView({ block: "center", behavior: "smooth" });
+      targetCard.click();
+    }
+  });
+}
+
+// Botón de PANTALLA COMPLETA (sobre el screenWrapper para arrastrar nuestro botón de cierre)
 if (fullscreenBtn) {
   fullscreenBtn.addEventListener("click", () => {
     playBlipSound();
-    if (videoPlayer.requestFullscreen) {
-      videoPlayer.requestFullscreen();
-    } else if (videoPlayer.webkitRequestFullscreen) {
-      videoPlayer.webkitRequestFullscreen();
-    } else if (videoPlayer.msRequestFullscreen) {
-      videoPlayer.msRequestFullscreen();
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (screenWrapper.requestFullscreen) {
+        screenWrapper.requestFullscreen();
+      } else if (screenWrapper.webkitRequestFullscreen) {
+        screenWrapper.webkitRequestFullscreen();
+      }
+    }
+  });
+}
+
+// Botón flotante para CERRAR PANTALLA COMPLETA
+if (fsCloseBtn) {
+  fsCloseBtn.addEventListener("click", () => {
+    playBlipSound();
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
     }
   });
 }
@@ -454,6 +618,8 @@ episodeSearch.addEventListener("input", (e) => {
  * Selecciona un episodio, cambia la URL del reproductor, actualiza marquesina y activa estados visuales
  */
 function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
+  if (!tvPowerOn) return; // No reproducir si la TV está apagada
+
   // Guardar en localStorage
   localStorage.setItem("retroStream_lastEpisode", fileId);
 

@@ -35,13 +35,15 @@
         <div class="tv-header">
           <span id="current-episode-title-top" class="neon-title-top">SIN SEÑAL</span>
           <div class="tv-indicators">
-            <button id="fullscreen-btn" class="tv-fs-btn" title="PANTALLA COMPLETA">⛶</button>
             <div class="indicator-dot red" id="indicator-play"></div>
             <div class="indicator-dot green"></div>
           </div>
         </div>
 
         <div class="screen-wrapper" id="screen-wrapper">
+          <!-- Botón flotante para salir de pantalla completa -->
+          <button id="fs-close-btn" class="fs-close-btn" title="SALIR DE PANTALLA COMPLETA">✕</button>
+
           <!-- Pantalla Estática inicial -->
           <div class="static-screen" id="static-screen">
             <div class="static-text" id="static-screen-text">INSERT COIN<br><br>SELECCIONA UN CAPITULO</div>
@@ -55,6 +57,16 @@
             allow="autoplay; encrypted-media" 
             allowfullscreen>
           </iframe>
+        </div>
+
+        <!-- Botones de Acción de la TV -->
+        <div class="tv-controls-bar">
+          <button class="arcade-btn power-btn" id="tv-power" title="ENCENDER / APAGAR PANTALLA">⏻ POWER</button>
+          <div class="arcade-btn-group">
+            <button class="arcade-btn control-nav-btn" id="tv-prev" title="CAPITULO ANTERIOR">◀ PREV</button>
+            <button class="arcade-btn control-nav-btn" id="tv-next" title="SIGUIENTE CAPITULO">NEXT ▶</button>
+            <button class="arcade-btn fs-btn" id="fullscreen-btn" title="PANTALLA COMPLETA">⛶</button>
+          </div>
         </div>
       </div>
 

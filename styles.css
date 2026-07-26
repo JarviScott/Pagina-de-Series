@@ -523,29 +523,101 @@ header {
   vertical-align: middle;
 }
 
-/* Botón de Pantalla Completa en Bezel */
-.tv-fs-btn {
+/* Barra de botones de control de la TV */
+.tv-controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  background-color: #120a1c;
+  border: 4px solid var(--border-color);
+  padding: 8px 15px;
+  box-shadow: 4px 4px 0px #000;
+}
+
+.arcade-btn {
   background-color: var(--neon-magenta);
   color: #fff;
-  border: 2px solid var(--border-color);
+  border: 3px solid var(--border-color);
+  padding: 6px 12px;
   font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  padding: 3px 6px;
+  font-size: 8px;
   cursor: pointer;
-  box-shadow: 2px 2px 0px #000;
-  outline: none;
-  margin-right: 8px;
+  box-shadow: 3px 3px 0px #000;
   transition: all 0.05s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  outline: none;
 }
-.tv-fs-btn:hover {
+
+.arcade-btn:hover {
   background-color: var(--neon-cyan);
+  color: #000;
 }
-.tv-fs-btn:active {
+
+.arcade-btn:active {
   transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px #000;
+}
+
+.arcade-btn.power-btn {
+  background-color: #ff3333;
+}
+
+.arcade-btn.power-btn.off {
+  background-color: #331111;
+  color: #888;
+  border-color: #555;
   box-shadow: 1px 1px 0px #000;
+  transform: translate(2px, 2px);
+}
+
+.arcade-btn.fs-btn {
+  background-color: var(--neon-green);
+  color: #000;
+  font-size: 10px;
+  padding: 5px 10px;
+}
+
+.arcade-btn.fs-btn:hover {
+  background-color: var(--neon-yellow);
+}
+
+.arcade-btn-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Botón flotante para cerrar pantalla completa */
+.fs-close-btn {
+  display: none; /* oculto por defecto */
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2147483647; /* sobre cualquier iframe */
+  background-color: rgba(0, 0, 0, 0.85);
+  color: var(--neon-magenta);
+  border: 3px solid var(--neon-magenta);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px #000;
+  outline: none;
+}
+
+.fs-close-btn:hover {
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 3px 3px 0px var(--neon-magenta);
+}
+
+/* Hacerlo visible cuando el screen-wrapper entra en pantalla completa */
+.screen-wrapper:fullscreen .fs-close-btn {
+  display: block !important;
+}
+
+.screen-wrapper:-webkit-full-screen .fs-close-btn {
+  display: block !important;
 }
 
 /* ==========================================================================
@@ -712,6 +784,40 @@ header {
   .neon-title-top {
     font-size: 7px;
     max-width: 70%;
+  }
+
+  /* Barra de botones de TV compacta en móvil */
+  .tv-controls-bar {
+    margin-top: 8px;
+    padding: 6px 10px;
+    box-shadow: 3px 3px 0px #000;
+    margin-left: 2px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+
+  .arcade-btn {
+    padding: 5px 8px;
+    font-size: 7px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0px #000;
+  }
+
+  .arcade-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px #000;
+  }
+
+  .arcade-btn.fs-btn {
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+
+  .fs-close-btn {
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    padding: 4px 6px;
   }
 
   /* PANEL DE CONTROL: Compacto y apilado para evitar desbordes */

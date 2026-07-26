@@ -723,6 +723,8 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     topTitle.textContent = cleanTitle.toUpperCase();
     topTitle.classList.add("active-playing");
   }
+}
+
 // Función auxiliar para ocultar la pantalla estática CRT
 function hideStaticScreen() {
   setTimeout(() => {

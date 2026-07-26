@@ -37,6 +37,7 @@ const fullscreenBtn = document.getElementById("fullscreen-btn");
 // watched list, bandera de restauración y estado de energía
 let tvPowerOn = true;
 let watchedEpisodes = JSON.parse(localStorage.getItem("retroStream_watched") || "[]");
+let playbackPositions = JSON.parse(localStorage.getItem("retroStream_playbackPositions") || "{}");
 let restoringState = false; // Bandera para evitar reproducir audio durante auto-carga
 
 // ==========================================================================
@@ -664,6 +665,39 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   sourceElement.src = videoUrl;
   sourceElement.type = "video/mp4";
   videoElement.appendChild(sourceElement);
+
+  // Restaurar posición de reproducción guardada si existe
+  const savedTime = playbackPositions[fileId];
+  if (savedTime) {
+    const restoreTime = () => {
+      videoElement.currentTime = savedTime;
+      videoElement.removeEventListener("canplay", restoreTime);
+    };
+    videoElement.addEventListener("canplay", restoreTime);
+  }
+
+  // Escuchar actualizaciones de tiempo para guardar la posición
+  videoElement.addEventListener("timeupdate", () => {
+    const currentTime = Math.floor(videoElement.currentTime);
+    const duration = videoElement.duration;
+    
+    if (!isNaN(duration) && duration > 0) {
+      // Guardar posición si ha pasado de los 5 segundos y faltan más de 10 segundos para el final
+      if (currentTime > 5 && duration - currentTime > 10) {
+        if (playbackPositions[fileId] !== currentTime) {
+          playbackPositions[fileId] = currentTime;
+          localStorage.setItem("retroStream_playbackPositions", JSON.stringify(playbackPositions));
+        }
+      } 
+      // Si está en los últimos 10 segundos, consideremos que terminó y limpiemos la posición
+      else if (duration - currentTime <= 10) {
+        if (playbackPositions[fileId]) {
+          delete playbackPositions[fileId];
+          localStorage.setItem("retroStream_playbackPositions", JSON.stringify(playbackPositions));
+        }
+      }
+    }
+  });
 
   let fallbackTriggered = false;
 

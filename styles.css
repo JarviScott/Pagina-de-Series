@@ -620,7 +620,7 @@ header {
    RESPONSIVIDAD Y AJUSTES MÓVILES
    ========================================================================== */
 /* Pantallas de Computadora (PC) - Distribución inteligente de altura */
-@media (min-width: 993px) {
+@media (min-width: 769px) {
   body {
     height: 100vh;
     display: flex;
@@ -689,85 +689,84 @@ header {
   }
 }
 
-/* Pantallas Medianas / Tabletas y Móviles */
-@media (max-width: 992px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .logo {
-    font-size: 22px;
-  }
-  
-  .tv-chassis {
-    margin-bottom: 10px;
-  }
-
-  /* Reducir sombras y agregar margen derecho para evitar desbordamiento por la sombra */
-  .logo-container, .tv-chassis, .control-box {
-    box-shadow: 6px 6px 0px #000;
-    margin-right: 8px;
-  }
-  .tv-controls-bar, .marquee-panel, .episode-card {
-    box-shadow: 4px 4px 0px #000;
-    margin-right: 6px;
-  }
-}
-
-@media (max-width: 576px) {
+/* Pantallas de Dispositivos Móviles (Estilo Netflix / Consola Compacta) */
+@media (max-width: 768px) {
   body {
-    padding: 10px;
+    padding: 8px;
+    overflow-y: auto;
+  }
+
+  header {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
   }
 
   .logo-container {
+    display: inline-block;
     width: auto;
-    display: block;
-    padding: 12px;
-    margin-right: 8px;
+    padding: 8px 16px;
+    margin-left: 6px;
+    margin-right: 12px;
+    box-shadow: 4px 4px 0px #000;
+    border-width: 4px;
+    text-align: center;
   }
 
   .logo {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .subtitle {
-    font-size: 7px;
+    font-size: 6px;
+    margin-top: 4px;
   }
 
+  .main-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Ocultar marquesina redundante en móviles para ahorrar espacio vertical */
+  .marquee-panel {
+    display: none;
+  }
+
+  /* TV Chasis más compacto */
   .tv-chassis {
     padding: 8px;
     border-width: 4px;
-    margin-right: 8px;
+    margin-left: 6px;
+    margin-right: 12px;
+    margin-bottom: 10px;
+    box-shadow: 6px 6px 0px #000;
+  }
+
+  .tv-header {
+    margin-bottom: 8px;
   }
 
   .screen-wrapper {
     border-width: 2px;
   }
 
-  .control-box {
-    padding: 15px;
-    border-width: 4px;
-    margin-right: 8px;
-  }
-
-  .episodes-box {
-    max-height: 380px;
-  }
-
-  .pixel-select, .pixel-input {
-    padding: 10px;
-    font-size: 8px;
-    border-width: 3px;
-  }
-
   .neon-title-top {
-    font-size: 8px;
-    max-width: 60%;
+    font-size: 7px;
+    max-width: 55%;
   }
 
-  /* Ajustes a botones físicos y marquesina en pantallas muy pequeñas */
+  /* Barra de botones de TV compacta */
+  .tv-controls-bar {
+    margin-top: 8px;
+    padding: 6px 10px;
+    box-shadow: 3px 3px 0px #000;
+    margin-left: 2px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+
   .arcade-btn {
-    padding: 5px 8px;
+    padding: 6px 10px;
     font-size: 7px;
     border-width: 2px;
     box-shadow: 2px 2px 0px #000;
@@ -783,7 +782,116 @@ header {
     transform: translate(1px, 1px);
   }
 
-  .marquee-content {
+  /* PANEL DE CONTROL: Selectores inline (lado a lado) */
+  .control-box {
+    padding: 10px;
+    border-width: 3px;
+    margin-left: 6px;
+    margin-right: 12px;
+    margin-bottom: 10px;
+    box-shadow: 4px 4px 0px #000;
+  }
+
+  .control-box h2 {
+    display: none; /* Ocultamos el encabezado para ganar espacio */
+  }
+
+  .control-box .selector-group {
+    display: flex;
+    flex-direction: row; /* Lado a lado */
+    gap: 8px;
+  }
+
+  .control-box .control-field {
+    flex: 1; /* Mitad de ancho para cada uno */
+    gap: 4px;
+  }
+
+  .control-box .control-label {
+    font-size: 6px;
+  }
+
+  .pixel-select {
+    padding: 8px 24px 8px 8px;
+    font-size: 7px;
+    border-width: 2px;
+  }
+
+  .pixel-select-container::after {
     font-size: 8px;
+    right: 10px;
+  }
+
+  /* PANEL DE EPISODIOS: Listado compacto tipo Netflix */
+  .episodes-box {
+    padding: 10px;
+    border-width: 3px;
+    margin-left: 6px;
+    margin-right: 12px;
+    margin-bottom: 10px;
+    box-shadow: 4px 4px 0px #000;
+    max-height: 380px;
+  }
+
+  .episodes-box h2 {
+    display: none; /* Ocultamos el título "Episodios" */
+  }
+
+  .episodes-box .control-field {
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .episodes-box .control-label {
+    font-size: 6px;
+  }
+
+  .pixel-input {
+    padding: 8px;
+    font-size: 7px;
+    border-width: 2px;
+  }
+
+  .episodes-list {
+    gap: 8px;
+  }
+
+  /* Tarjetas horizontales compactas en una sola línea */
+  .episode-card {
+    padding: 8px 12px;
+    flex-direction: row; /* Contenido en fila */
+    justify-content: space-between; /* Número a la izq, título a la der */
+    align-items: center;
+    border-width: 2px;
+    box-shadow: 3px 3px 0px #000;
+    margin-left: 4px;
+    margin-right: 8px;
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+
+  .episode-card:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px var(--neon-magenta);
+  }
+
+  .episode-card .ep-number {
+    font-size: 7px;
+    flex-shrink: 0; /* No se encoge */
+  }
+
+  .episode-card .ep-title {
+    font-size: 7px;
+    text-align: right;
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .watched-badge {
+    font-size: 5px;
+    margin-left: 4px;
+    padding: 1px 2px;
   }
 }

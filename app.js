@@ -27,15 +27,7 @@ const marqueeText = document.getElementById("marquee-text");
 const errorScreen = document.getElementById("error-screen");
 const errorDetailsText = document.getElementById("error-details-text");
 
-// Nuevas referencias para botones físicos y apagado CRT
-const screenWrapper = document.getElementById("screen-wrapper");
-const crtOffOverlay = document.getElementById("crt-off-overlay");
-const tvPowerBtn = document.getElementById("tv-power");
-const tvPrevBtn = document.getElementById("tv-prev");
-const tvNextBtn = document.getElementById("tv-next");
-
-// Estado de energía y watched list
-let tvPowerOn = true;
+// watched list y bandera de restauración
 let watchedEpisodes = JSON.parse(localStorage.getItem("retroStream_watched") || "[]");
 let restoringState = false; // Bandera para evitar reproducir audio durante auto-carga
 
@@ -107,38 +99,6 @@ function playCoinSound() {
   }
 }
 
-// Sonido Power (Encendido / Apagado)
-function playPowerSound(isOn) {
-  try {
-    const ctx = getAudioContext();
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    if (isOn) {
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(80, now);
-      osc.frequency.exponentialRampToValueAtTime(320, now + 0.25);
-      gain.gain.setValueAtTime(0.05, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-    } else {
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(250, now);
-      osc.frequency.exponentialRampToValueAtTime(30, now + 0.35);
-      gain.gain.setValueAtTime(0.07, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    }
-    
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.start();
-    osc.stop(now + 0.4);
-  } catch (e) {
-    console.error("Audio error:", e);
-  }
-}
-
 // ==========================================================================
 // FUNCIONES DEL CICLO DE VIDA E INTEGRACIÓN DE API
 // ==========================================================================
@@ -156,9 +116,6 @@ async function initApp() {
     setMarqueeMessage("INICIALIZANDO SISTEMA RETRO... CARGANDO SERIES DESDE EL DISCO...");
     const series = await getSeries();
     populateSeriesDropdown(series);
-    
-    // Configurar controladores de los botones físicos de la TV
-    setupTvPhysicalButtons();
     
     // Restaurar estado anterior si existe
     await restoreSavedState();
@@ -204,112 +161,6 @@ async function restoreSavedState() {
   } finally {
     restoringState = false; // Rehabilitar sonidos
   }
-}
-
-/**
- * Configura los botones de hardware de la TV Arcade
- */
-function setupTvPhysicalButtons() {
-  // Botón de POWER (Encendido / Apagado)
-  tvPowerBtn.addEventListener("click", () => {
-    tvPowerOn = !tvPowerOn;
-    
-    if (tvPowerOn) {
-      // Encender TV
-      tvPowerBtn.classList.remove("off");
-      crtOffOverlay.classList.remove("active");
-      playPowerSound(true);
-      
-      // Reactivar reproducción del último video si existe
-      const lastEpisode = localStorage.getItem("retroStream_lastEpisode");
-      if (lastEpisode) {
-        const card = document.querySelector(`.episode-card[data-id="${lastEpisode}"]`);
-        if (card) {
-          const cleanName = cleanFileName(card.querySelector(".ep-title").textContent);
-          selectAndPlayEpisode(lastEpisode, cleanName, card);
-          return;
-        }
-      }
-      
-      // Si no hay video, mostrar estática
-      staticScreenText.innerHTML = "INSERT COIN<br><br>SELECCIONA UN CAPITULO";
-      staticScreen.style.opacity = "1";
-      staticScreen.style.display = "flex";
-      indicatorPlay.classList.remove("green");
-      indicatorPlay.classList.add("red");
-      setMarqueeMessage("TV RETRO ENCENDIDA. INSERTA MONEDA.");
-    } else {
-      // Apagar TV
-      tvPowerBtn.classList.add("off");
-      crtOffOverlay.classList.add("active");
-      playPowerSound(false);
-      
-      // Detener video e indicadores
-      videoPlayer.src = "";
-      indicatorPlay.classList.remove("green", "red");
-      
-      const topTitle = document.getElementById("current-episode-title-top");
-      if (topTitle) {
-        topTitle.textContent = "APAGADO";
-        topTitle.classList.remove("active-playing");
-      }
-      setMarqueeMessage("TV RETRO APAGADA. PRESIONA POWER PARA ENCENDER.");
-    }
-  });
-
-  // Botón ANTERIOR (Prev)
-  tvPrevBtn.addEventListener("click", () => {
-    if (!tvPowerOn) return;
-    playBlipSound();
-    
-    const activeCard = document.querySelector(".episode-card.active");
-    let targetCard = null;
-    
-    if (activeCard) {
-      targetCard = activeCard.previousElementSibling;
-    }
-    
-    // Si no hay tarjeta activa o no hay elemento anterior, vamos al último
-    if (!targetCard) {
-      const cards = document.querySelectorAll(".episode-card");
-      if (cards.length > 0) {
-        targetCard = cards[cards.length - 1];
-      }
-    }
-    
-    if (targetCard) {
-      targetCard.scrollIntoView({ block: "center", behavior: "smooth" });
-      targetCard.click();
-    }
-  });
-
-  // Botón SIGUIENTE (Next)
-  tvNextBtn.addEventListener("click", () => {
-    if (!tvPowerOn) return;
-    playBlipSound();
-    
-    const activeCard = document.querySelector(".episode-card.active");
-    let targetCard = null;
-    
-    if (activeCard) {
-      targetCard = activeCard.nextElementSibling;
-    }
-    
-    // Si no hay tarjeta activa o no hay elemento siguiente, vamos al primero
-    if (!targetCard) {
-      targetCard = document.querySelector(".episode-card");
-    }
-    
-    if (targetCard) {
-      targetCard.scrollIntoView({ block: "center", behavior: "smooth" });
-      targetCard.click();
-    }
-  });
-  
-  // Agregar sonido blip al interactuar con el input de búsqueda
-  episodeSearch.addEventListener("focus", () => {
-    playBlipSound();
-  });
 }
 
 /**
@@ -421,7 +272,7 @@ async function handleSeasonChange(seasonId) {
   }
 }
 
-// Vinculación de Eventos en Selectores
+// Vinculación de Eventos en Selectores y Buscador
 seriesSelect.addEventListener("change", async (e) => {
   playBlipSound();
   await handleSeriesChange(e.target.value);
@@ -430,6 +281,10 @@ seriesSelect.addEventListener("change", async (e) => {
 seasonSelect.addEventListener("change", async (e) => {
   playBlipSound();
   await handleSeasonChange(e.target.value);
+});
+
+episodeSearch.addEventListener("focus", () => {
+  playBlipSound();
 });
 
 // ==========================================================================
@@ -585,8 +440,6 @@ episodeSearch.addEventListener("input", (e) => {
  * Selecciona un episodio, cambia la URL del reproductor, actualiza marquesina y activa estados visuales
  */
 function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
-  if (!tvPowerOn) return; // No reproducir si la TV está apagada
-
   // Guardar en localStorage
   localStorage.setItem("retroStream_lastEpisode", fileId);
 

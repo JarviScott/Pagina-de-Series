@@ -512,99 +512,6 @@ header {
 }
 
 
-/* Barra de botones físicos de la TV */
-.tv-controls-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 15px;
-  background-color: #120a1c;
-  border: 4px solid var(--border-color);
-  padding: 8px 15px;
-  box-shadow: 4px 4px 0px #000;
-}
-
-.arcade-btn {
-  background-color: var(--neon-magenta);
-  color: #fff;
-  border: 3px solid var(--border-color);
-  padding: 6px 12px;
-  font-size: 8px;
-  cursor: pointer;
-  box-shadow: 3px 3px 0px #000;
-  transition: all 0.05s ease;
-  outline: none;
-}
-
-.arcade-btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px #000;
-}
-
-.arcade-btn:active {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0px #000;
-}
-
-.arcade-btn.power-btn {
-  background-color: #ff3333;
-}
-
-.arcade-btn.power-btn.off {
-  background-color: #331111;
-  color: #888;
-  border-color: #555;
-  box-shadow: 1px 1px 0px #000;
-  transform: translate(2px, 2px);
-}
-
-.arcade-btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-/* Efecto de Apagado CRT */
-.crt-off-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #000;
-  z-index: 10;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
-}
-
-.crt-off-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-  animation: crt-turn-off 0.35s ease-out forwards;
-}
-
-@keyframes crt-turn-off {
-  0% {
-    transform: scale(1, 1);
-    filter: brightness(1);
-    background: transparent;
-  }
-  40% {
-    transform: scale(1, 0.01);
-    filter: brightness(3);
-    background: #fff;
-  }
-  80% {
-    transform: scale(0.01, 0.01);
-    filter: brightness(5);
-    background: #fff;
-  }
-  100% {
-    transform: scale(0, 0);
-    filter: brightness(0);
-    background: #000;
-  }
-}
 
 /* Indicador del capítulo visto */
 .watched-badge {
@@ -691,6 +598,11 @@ header {
 
 /* Pantallas de Dispositivos Móviles (Estilo Netflix / Consola Compacta) */
 @media (max-width: 768px) {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden; /* Evita desbordamiento horizontal total */
+  }
+
   body {
     padding: 8px;
     overflow-y: auto;
@@ -700,6 +612,7 @@ header {
     margin-bottom: 12px;
     display: flex;
     justify-content: center;
+    width: 100%;
   }
 
   .logo-container {
@@ -711,6 +624,7 @@ header {
     box-shadow: 4px 4px 0px #000;
     border-width: 4px;
     text-align: center;
+    box-sizing: border-box;
   }
 
   .logo {
@@ -723,7 +637,18 @@ header {
   }
 
   .main-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    gap: 10px;
+  }
+
+  .navigation-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
     gap: 10px;
   }
 
@@ -732,64 +657,48 @@ header {
     display: none;
   }
 
-  /* TV Chasis más compacto */
+  /* TV Chasis más compacto con ancho matemáticamente perfecto */
   .tv-chassis {
     padding: 8px;
     border-width: 4px;
+    box-shadow: 6px 6px 0px #000;
     margin-left: 6px;
     margin-right: 12px;
     margin-bottom: 10px;
-    box-shadow: 6px 6px 0px #000;
+    box-sizing: border-box;
+    width: calc(100% - 18px);
   }
 
   .tv-header {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .screen-wrapper {
     border-width: 2px;
+    width: 100%;
+  }
+
+  .static-text {
+    font-size: 9px;
+    letter-spacing: 1px;
+    line-height: 1.4;
   }
 
   .neon-title-top {
     font-size: 7px;
-    max-width: 55%;
+    max-width: 70%;
   }
 
-  /* Barra de botones de TV compacta */
-  .tv-controls-bar {
-    margin-top: 8px;
-    padding: 6px 10px;
-    box-shadow: 3px 3px 0px #000;
-    margin-left: 2px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-  }
-
-  .arcade-btn {
-    padding: 6px 10px;
-    font-size: 7px;
-    border-width: 2px;
-    box-shadow: 2px 2px 0px #000;
-  }
-
-  .arcade-btn:active {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0px #000;
-  }
-
-  .arcade-btn.power-btn.off {
-    box-shadow: 1px 1px 0px #000;
-    transform: translate(1px, 1px);
-  }
-
-  /* PANEL DE CONTROL: Selectores inline (lado a lado) */
+  /* PANEL DE CONTROL: Compacto y apilado para evitar desbordes */
   .control-box {
     padding: 10px;
     border-width: 3px;
+    box-shadow: 4px 4px 0px #000;
     margin-left: 6px;
     margin-right: 12px;
     margin-bottom: 10px;
-    box-shadow: 4px 4px 0px #000;
+    box-sizing: border-box;
+    width: calc(100% - 18px);
   }
 
   .control-box h2 {
@@ -798,13 +707,13 @@ header {
 
   .control-box .selector-group {
     display: flex;
-    flex-direction: row; /* Lado a lado */
+    flex-direction: column; /* Apilado vertical seguro */
     gap: 8px;
   }
 
   .control-box .control-field {
-    flex: 1; /* Mitad de ancho para cada uno */
-    gap: 4px;
+    width: 100%;
+    gap: 3px;
   }
 
   .control-box .control-label {
@@ -812,25 +721,27 @@ header {
   }
 
   .pixel-select {
-    padding: 8px 24px 8px 8px;
+    padding: 6px 20px 6px 6px;
     font-size: 7px;
     border-width: 2px;
   }
 
   .pixel-select-container::after {
-    font-size: 8px;
-    right: 10px;
+    font-size: 6px;
+    right: 8px;
   }
 
   /* PANEL DE EPISODIOS: Listado compacto tipo Netflix */
   .episodes-box {
     padding: 10px;
     border-width: 3px;
+    box-shadow: 4px 4px 0px #000;
     margin-left: 6px;
     margin-right: 12px;
     margin-bottom: 10px;
-    box-shadow: 4px 4px 0px #000;
-    max-height: 380px;
+    box-sizing: border-box;
+    width: calc(100% - 18px);
+    max-height: 340px;
   }
 
   .episodes-box h2 {
@@ -838,8 +749,9 @@ header {
   }
 
   .episodes-box .control-field {
-    gap: 4px;
-    margin-bottom: 10px;
+    gap: 3px;
+    margin-bottom: 8px;
+    width: 100%;
   }
 
   .episodes-box .control-label {
@@ -847,27 +759,32 @@ header {
   }
 
   .pixel-input {
-    padding: 8px;
+    padding: 6px;
     font-size: 7px;
     border-width: 2px;
+    width: 100%;
   }
 
   .episodes-list {
-    gap: 8px;
+    gap: 6px;
+    width: 100%;
+    overflow-x: hidden;
   }
 
-  /* Tarjetas horizontales compactas en una sola línea */
+  /* Tarjetas horizontales compactas en una sola línea y protegidas contra desbordes */
   .episode-card {
-    padding: 8px 12px;
-    flex-direction: row; /* Contenido en fila */
-    justify-content: space-between; /* Número a la izq, título a la der */
+    padding: 6px 10px;
+    flex-direction: row; /* Fila horizontal */
+    justify-content: space-between;
     align-items: center;
     border-width: 2px;
     box-shadow: 3px 3px 0px #000;
     margin-left: 4px;
     margin-right: 8px;
     margin-bottom: 6px;
-    gap: 8px;
+    gap: 10px;
+    width: calc(100% - 12px); /* Ancho exacto calculado */
+    box-sizing: border-box;
   }
 
   .episode-card:hover {
@@ -877,13 +794,14 @@ header {
 
   .episode-card .ep-number {
     font-size: 7px;
-    flex-shrink: 0; /* No se encoge */
+    flex-shrink: 0; /* Evita que el número colapse */
   }
 
   .episode-card .ep-title {
     font-size: 7px;
     text-align: right;
-    max-width: 70%;
+    flex-grow: 1; /* Crece para llenar el espacio */
+    min-width: 0; /* Permite al texto truncarse en lugar de empujar */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

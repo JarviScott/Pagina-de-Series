@@ -1,0 +1,789 @@
+/* ==========================================================================
+   SISTEMA DE DISEÑO RETRO / PIXEL ART - STYLES.CSS
+   ========================================================================== */
+:root {
+  --bg-color: #0c0614;
+  --panel-bg: #1d122b;
+  --neon-magenta: #ff0055;
+  --neon-cyan: #00f0ff;
+  --neon-yellow: #ffcc00;
+  --neon-green: #39ff14;
+  --border-color: #ffffff;
+  --text-color: #ffffff;
+  --text-muted: #8b7ca2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Press Start 2P', monospace;
+  image-rendering: pixelated;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 20px;
+  position: relative;
+}
+
+/* Efecto CRT Scanlines Overlay */
+.scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.3) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 9999;
+  pointer-events: none;
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+/* Barras de desplazamiento Pixel Art */
+::-webkit-scrollbar {
+  width: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border: 4px solid var(--border-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neon-magenta);
+  border: 4px solid var(--bg-color);
+  box-shadow: inset 0 0 0 2px var(--border-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
+}
+
+/* Estructura del Layout Principal */
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo-container {
+  display: inline-block;
+  border: 6px solid var(--border-color);
+  background-color: var(--panel-bg);
+  padding: 15px 30px;
+  box-shadow: 10px 10px 0px #000;
+  position: relative;
+}
+
+.logo {
+  font-size: 28px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--neon-cyan);
+  text-shadow: 4px 4px 0px var(--neon-magenta);
+  animation: neon-pulse 1.5s infinite alternate;
+}
+
+@keyframes neon-pulse {
+  0% {
+    text-shadow: 4px 4px 0px var(--neon-magenta), 0 0 5px var(--neon-cyan);
+  }
+  100% {
+    text-shadow: 4px 4px 0px var(--neon-magenta), 0 0 20px var(--neon-cyan);
+  }
+}
+
+.subtitle {
+  font-size: 9px;
+  color: var(--neon-yellow);
+  margin-top: 10px;
+  letter-spacing: 1px;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Sección Izquierda: Reproductor */
+.player-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-chassis {
+  background-color: var(--panel-bg);
+  border: 6px solid var(--border-color);
+  padding: 15px;
+  box-shadow: 10px 10px 0px #000;
+  position: relative;
+}
+
+/* Luces de estado de TV Arcade */
+.tv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 10px;
+  color: var(--text-muted);
+  gap: 10px;
+}
+
+.neon-title-top {
+  color: var(--neon-cyan);
+  font-size: 10px;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.neon-title-top.active-playing {
+  color: var(--neon-green);
+  text-shadow: 0 0 5px var(--neon-green);
+  animation: play-blink 2s step-end infinite;
+}
+
+@keyframes play-blink {
+  50% { opacity: 0.8; }
+}
+
+.tv-indicators {
+  display: flex;
+  gap: 8px;
+}
+
+.indicator-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border-color);
+  background-color: #4a3b63;
+}
+
+.indicator-dot.red {
+  background-color: #ff3333;
+  box-shadow: 0 0 8px #ff3333;
+  animation: blink 1s step-end infinite;
+}
+
+.indicator-dot.green {
+  background-color: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Iframe & Contenedor de Video Aspect Ratio */
+.screen-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 110vh; /* Se adapta dinámicamente al alto de la pantalla en PC */
+  aspect-ratio: 16 / 9; /* Reemplaza el padding-top fijo por relación de aspecto nativa */
+  border: 4px solid var(--border-color);
+  background-color: #000;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.video-player-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  z-index: 1;
+}
+
+/* Pantalla Estática (Sin Señal / Cargando) */
+.static-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-size: 250px 250px;
+  animation: static-noise 0.15s infinite;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes static-noise {
+  0% { background-position: 0px 0px; }
+  20% { background-position: 20px 40px; }
+  40% { background-position: -40px 10px; }
+  60% { background-position: 90px -30px; }
+  80% { background-position: -20px -50px; }
+  100% { background-position: 50px 60px; }
+}
+
+.static-text {
+  font-size: 14px;
+  text-shadow: 2px 2px var(--neon-magenta), -2px -2px var(--neon-cyan);
+  animation: static-text-glow 1s steps(2) infinite;
+  letter-spacing: 2px;
+  text-align: center;
+  padding: 0 10px;
+  line-height: 1.5;
+}
+
+@keyframes static-text-glow {
+  0% { text-shadow: 2px 2px var(--neon-magenta), -2px -2px var(--neon-cyan); }
+  50% { text-shadow: -2px 2px var(--neon-cyan), 2px -2px var(--neon-magenta); color: #ffff00; }
+}
+
+/* Marquesina del Episodio en Reproducción */
+.marquee-panel {
+  background-color: #000;
+  border: 4px solid var(--neon-magenta);
+  margin-top: 20px;
+  padding: 12px;
+  box-shadow: 6px 6px 0px #000;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.marquee-text-container {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee-scroll 18s linear infinite;
+}
+
+.marquee-content {
+  font-size: 10px;
+  color: var(--neon-green);
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.marquee-content::before {
+  content: "[AHORA REPRODUCIENDO]";
+  color: var(--neon-yellow);
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+/* Sección Derecha: Selector de Contenidos */
+.navigation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.control-box {
+  background-color: var(--panel-bg);
+  border: 6px solid var(--border-color);
+  padding: 20px;
+  box-shadow: 10px 10px 0px #000;
+}
+
+.control-box h2 {
+  font-size: 12px;
+  color: var(--neon-yellow);
+  margin-bottom: 15px;
+  border-bottom: 4px solid var(--border-color);
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/* Controles de Selección Estilo Retro */
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-label {
+  font-size: 8px;
+  color: var(--neon-cyan);
+}
+
+/* Estilo de Dropdowns Pixel Art */
+.pixel-select {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--bg-color);
+  color: #fff;
+  border: 4px solid var(--border-color);
+  font-size: 9px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+}
+
+.pixel-select-container {
+  position: relative;
+}
+
+.pixel-select-container::after {
+  content: "▼";
+  font-size: 10px;
+  color: var(--neon-yellow);
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.pixel-select:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 5px var(--neon-cyan);
+}
+
+/* Campo de Búsqueda */
+.pixel-input {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--bg-color);
+  color: #fff;
+  border: 4px solid var(--border-color);
+  font-size: 9px;
+  outline: none;
+}
+
+.pixel-input:focus {
+  border-color: var(--neon-magenta);
+  box-shadow: 0 0 5px var(--neon-magenta);
+}
+
+/* Lista de Episodios */
+.episodes-box {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 480px;
+}
+
+.episodes-list {
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 5px;
+}
+
+/* Tarjetas de Episodios Estilo Cartucho/Tarjeta Retro */
+.episode-card {
+  background-color: var(--bg-color);
+  border: 4px solid var(--border-color);
+  padding: 15px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px #000;
+  transition: all 0.1s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  word-break: break-word;
+}
+
+.episode-card:hover {
+  border-color: var(--neon-magenta);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--neon-magenta);
+}
+
+.episode-card.active {
+  background-color: #271442;
+  border-color: var(--neon-green);
+  box-shadow: 4px 4px 0px var(--neon-green);
+}
+
+.episode-card.active .ep-number {
+  color: var(--neon-green);
+}
+
+.ep-number {
+  font-size: 8px;
+  color: var(--neon-yellow);
+}
+
+.ep-title {
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+/* Estados de Carga y Sin Resultados */
+.status-info {
+  text-align: center;
+  padding: 20px;
+  font-size: 9px;
+  color: var(--neon-yellow);
+  animation: blink 1.2s steps(2) infinite;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 9px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Estilos del Modal de Error estilo Crash de Arcade */
+.error-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0000aa; /* Azul clásico de la pantalla de error */
+  color: #fff;
+  z-index: 10000;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.error-header {
+  background-color: #fff;
+  color: #0000aa;
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.error-details {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 10px;
+  line-height: 2;
+}
+
+.error-code {
+  background: rgba(255,255,255,0.1);
+  border: 2px dashed #fff;
+  padding: 15px;
+  margin: 20px 0;
+  word-break: break-all;
+}
+
+.btn-retry {
+  background-color: var(--neon-yellow);
+  color: #000;
+  border: 4px solid #fff;
+  padding: 10px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+
+/* Barra de botones físicos de la TV */
+.tv-controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  background-color: #120a1c;
+  border: 4px solid var(--border-color);
+  padding: 8px 15px;
+  box-shadow: 4px 4px 0px #000;
+}
+
+.arcade-btn {
+  background-color: var(--neon-magenta);
+  color: #fff;
+  border: 3px solid var(--border-color);
+  padding: 6px 12px;
+  font-size: 8px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px #000;
+  transition: all 0.05s ease;
+  outline: none;
+}
+
+.arcade-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000;
+}
+
+.arcade-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px #000;
+}
+
+.arcade-btn.power-btn {
+  background-color: #ff3333;
+}
+
+.arcade-btn.power-btn.off {
+  background-color: #331111;
+  color: #888;
+  border-color: #555;
+  box-shadow: 1px 1px 0px #000;
+  transform: translate(2px, 2px);
+}
+
+.arcade-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* Efecto de Apagado CRT */
+.crt-off-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.crt-off-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+  animation: crt-turn-off 0.35s ease-out forwards;
+}
+
+@keyframes crt-turn-off {
+  0% {
+    transform: scale(1, 1);
+    filter: brightness(1);
+    background: transparent;
+  }
+  40% {
+    transform: scale(1, 0.01);
+    filter: brightness(3);
+    background: #fff;
+  }
+  80% {
+    transform: scale(0.01, 0.01);
+    filter: brightness(5);
+    background: #fff;
+  }
+  100% {
+    transform: scale(0, 0);
+    filter: brightness(0);
+    background: #000;
+  }
+}
+
+/* Indicador del capítulo visto */
+.watched-badge {
+  color: var(--neon-cyan);
+  font-size: 7px;
+  margin-left: 10px;
+  border: 1px solid var(--neon-cyan);
+  padding: 1px 3px;
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   RESPONSIVIDAD Y AJUSTES MÓVILES
+   ========================================================================== */
+/* Pantallas de Computadora (PC) - Distribución inteligente de altura */
+@media (min-width: 993px) {
+  body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Evita scroll de toda la página en PC */
+    padding: 15px;
+  }
+
+  header {
+    margin-bottom: 15px;
+    flex-shrink: 0;
+  }
+
+  .main-grid {
+    flex-grow: 1;
+    height: calc(100vh - 130px);
+    min-height: 0;
+    gap: 20px;
+  }
+
+  .player-panel {
+    height: 100%;
+    min-height: 0;
+    justify-content: space-between;
+  }
+
+  .tv-chassis {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    justify-content: center;
+  }
+
+  .screen-wrapper {
+    flex-shrink: 1;
+    min-height: 0;
+  }
+
+  .marquee-panel {
+    margin-top: 10px;
+    flex-shrink: 0;
+  }
+
+  .navigation-panel {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .control-box:first-of-type {
+    flex-shrink: 0;
+  }
+
+  .episodes-box {
+    flex-grow: 1;
+    min-height: 0;
+    max-height: none; /* Quitamos el max-height fijo en PC */
+  }
+
+  .episodes-list {
+    max-height: none;
+    flex-grow: 1;
+  }
+}
+
+/* Pantallas Medianas / Tabletas y Móviles */
+@media (max-width: 992px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .logo {
+    font-size: 22px;
+  }
+  
+  .tv-chassis {
+    margin-bottom: 10px;
+  }
+
+  /* Reducir sombras y agregar margen derecho para evitar desbordamiento por la sombra */
+  .logo-container, .tv-chassis, .control-box {
+    box-shadow: 6px 6px 0px #000;
+    margin-right: 8px;
+  }
+  .tv-controls-bar, .marquee-panel, .episode-card {
+    box-shadow: 4px 4px 0px #000;
+    margin-right: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    padding: 10px;
+  }
+
+  .logo-container {
+    width: auto;
+    display: block;
+    padding: 12px;
+    margin-right: 8px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .subtitle {
+    font-size: 7px;
+  }
+
+  .tv-chassis {
+    padding: 8px;
+    border-width: 4px;
+    margin-right: 8px;
+  }
+
+  .screen-wrapper {
+    border-width: 2px;
+  }
+
+  .control-box {
+    padding: 15px;
+    border-width: 4px;
+    margin-right: 8px;
+  }
+
+  .episodes-box {
+    max-height: 380px;
+  }
+
+  .pixel-select, .pixel-input {
+    padding: 10px;
+    font-size: 8px;
+    border-width: 3px;
+  }
+
+  .neon-title-top {
+    font-size: 8px;
+    max-width: 60%;
+  }
+
+  /* Ajustes a botones físicos y marquesina en pantallas muy pequeñas */
+  .arcade-btn {
+    padding: 5px 8px;
+    font-size: 7px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0px #000;
+  }
+
+  .arcade-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px #000;
+  }
+
+  .arcade-btn.power-btn.off {
+    box-shadow: 1px 1px 0px #000;
+    transform: translate(1px, 1px);
+  }
+
+  .marquee-content {
+    font-size: 8px;
+  }
+}

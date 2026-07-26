@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RETRO STREAM - Plataforma de Video Arcade</title>
+  
+  <!-- Fuente de Google Fonts para estilo pixel art -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Enlace al archivo de estilos CSS fraccionado -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Capa del efecto CRT Scanlines -->
+  <div class="scanlines"></div>
+
+  <!-- Encabezado de la página -->
+  <header>
+    <div class="logo-container">
+      <h1 class="logo">Retro Stream</h1>
+      <div class="subtitle">HECHO POR: JAVIER RODRIGUEZ</div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal (Grid Adaptable) -->
+  <main class="app-container main-grid">
+    
+    <!-- LADO IZQUIERDO: Reproductor y estado actual -->
+    <section class="player-panel">
+      <div class="tv-chassis">
+        <div class="tv-header">
+          <span id="current-episode-title-top" class="neon-title-top">SIN SEÑAL</span>
+          <div class="tv-indicators">
+            <div class="indicator-dot red" id="indicator-play"></div>
+            <div class="indicator-dot green"></div>
+          </div>
+        </div>
+
+        <div class="screen-wrapper" id="screen-wrapper">
+          <!-- Capa de apagado CRT -->
+          <div class="crt-off-overlay" id="crt-off-overlay"></div>
+
+          <!-- Pantalla Estática inicial -->
+          <div class="static-screen" id="static-screen">
+            <div class="static-text" id="static-screen-text">INSERT COIN<br><br>SELECCIONA UN CAPITULO</div>
+          </div>
+          
+          <!-- Iframe oculto inicialmente hasta cargar un video -->
+          <iframe 
+            class="video-player-iframe" 
+            id="video-player" 
+            src="" 
+            allow="autoplay; encrypted-media" 
+            allowfullscreen>
+          </iframe>
+        </div>
+
+        <!-- Botones de Control de la TV -->
+        <div class="tv-controls-bar">
+          <button class="arcade-btn power-btn" id="tv-power" title="ENCENDER / APAGAR PANTALLA">POWER</button>
+          <div class="arcade-btn-group">
+            <button class="arcade-btn control-nav-btn" id="tv-prev" title="CAPITULO ANTERIOR">◀ ANTERIOR</button>
+            <button class="arcade-btn control-nav-btn" id="tv-next" title="SIGUIENTE CAPITULO">SIGUIENTE ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner marquesina debajo del reproductor -->
+      <div class="marquee-panel">
+        <div class="marquee-text-container" id="marquee-container">
+          <div class="marquee-content" id="marquee-text">CARGANDO REPRODUCTOR RETRO DE SERIES...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LADO DERECHO: Selectores y Lista de Episodios -->
+    <section class="navigation-panel">
+      
+      <!-- Panel de Selección de Series/Temporadas -->
+      <div class="control-box">
+        <h2>Panel de Control</h2>
+        <div class="selector-group">
+          
+          <!-- Selector de Series -->
+          <div class="control-field">
+            <span class="control-label">ELEGIR SERIE</span>
+            <div class="pixel-select-container">
+              <select id="series-select" class="pixel-select">
+                <option value="">-- CARGANDO SERIES --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Selector de Temporadas -->
+          <div class="control-field">
+            <span class="control-label">ELEGIR TEMPORADA</span>
+            <div class="pixel-select-container">
+              <select id="season-select" class="pixel-select" disabled>
+                <option value="">-- SELECCIONA UNA SERIE --</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Panel de Listado de Episodios -->
+      <div class="control-box episodes-box">
+        <h2>Episodios</h2>
+        
+        <!-- Input de Búsqueda/Filtro -->
+        <div class="control-field" style="margin-bottom: 15px;">
+          <span class="control-label">FILTRAR POR TITULO</span>
+          <input type="text" id="episode-search" class="pixel-input" placeholder="ESCRIBE PARA BUSCAR..." disabled>
+        </div>
+
+        <div class="episodes-list" id="episodes-list">
+          <div class="empty-state">SELECCIONA UNA SERIE Y TEMPORADA PARA CARGAR EPISODIOS</div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Pantalla de Error tipo Arcade crash (BSOD) -->
+  <div class="error-container" id="error-screen">
+    <div class="error-header">*** FATAL ERROR DE CARGA ***</div>
+    <div class="error-details">
+      <p>Un error inesperado ha ocurrido al comunicarse con Google Drive API.</p>
+      <p>Asegúrese de que la clave de API y el ID de la carpeta raíz sean válidos y que las carpetas tengan permisos públicos de lectura.</p>
+      <div class="error-code" id="error-details-text">
+        Detalle del Error: N/A
+      </div>
+      <p>Pasos de solución de problemas:</p>
+      <ul style="margin-left: 20px; margin-bottom: 20px;">
+        <li>Verifique la conexión a Internet.</li>
+        <li>Revise si la clave de API ha expirado o tiene restricciones de dominio incorrectas.</li>
+        <li>Confirme que la carpeta de origen principal esté compartida públicamente.</li>
+      </ul>
+      <button class="btn-retry" onclick="location.reload()">REINTENTAR (F5)</button>
+    </div>
+  </div>
+
+  <!-- Enlace al archivo de lógica JS fraccionado -->
+  <script src="app.js" defer></script>
+</body>
+</html>

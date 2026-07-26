@@ -12,6 +12,15 @@
 
   <!-- Enlace al archivo de estilos CSS fraccionado -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- PWA y Soporte para agregar a Pantalla de Inicio como App Web -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Retro Stream">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
 </head>
 <body>
 
@@ -41,9 +50,6 @@
         </div>
 
         <div class="screen-wrapper" id="screen-wrapper">
-          <!-- Botón flotante para salir de pantalla completa -->
-          <button id="fs-close-btn" class="fs-close-btn" title="SALIR DE PANTALLA COMPLETA">✕</button>
-
           <!-- Pantalla Estática inicial -->
           <div class="static-screen" id="static-screen">
             <div class="static-text" id="static-screen-text">INSERT COIN<br><br>SELECCIONA UN CAPITULO</div>

@@ -587,38 +587,7 @@ header {
   align-items: center;
 }
 
-/* Botón flotante para cerrar pantalla completa */
-.fs-close-btn {
-  display: none; /* oculto por defecto */
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 2147483647; /* sobre cualquier iframe */
-  background-color: rgba(0, 0, 0, 0.85);
-  color: var(--neon-magenta);
-  border: 3px solid var(--neon-magenta);
-  font-family: 'Press Start 2P', monospace;
-  font-size: 12px;
-  padding: 6px 10px;
-  cursor: pointer;
-  box-shadow: 3px 3px 0px #000;
-  outline: none;
-}
 
-.fs-close-btn:hover {
-  color: #fff;
-  border-color: #fff;
-  box-shadow: 3px 3px 0px var(--neon-magenta);
-}
-
-/* Hacerlo visible cuando el screen-wrapper entra en pantalla completa */
-.screen-wrapper:fullscreen .fs-close-btn {
-  display: block !important;
-}
-
-.screen-wrapper:-webkit-full-screen .fs-close-btn {
-  display: block !important;
-}
 
 /* ==========================================================================
    RESPONSIVIDAD Y AJUSTES MÓVILES
@@ -716,8 +685,8 @@ header {
     display: inline-block;
     width: auto;
     padding: 8px 16px;
-    margin-left: 6px;
-    margin-right: 12px;
+    margin-left: 4px;
+    margin-right: 8px;
     box-shadow: 4px 4px 0px #000;
     border-width: 4px;
     text-align: center;
@@ -756,14 +725,14 @@ header {
 
   /* TV Chasis más compacto con ancho matemáticamente perfecto */
   .tv-chassis {
-    padding: 8px;
-    border-width: 4px;
+    padding: 4px;
+    border-width: 3px;
     box-shadow: 6px 6px 0px #000;
-    margin-left: 6px;
-    margin-right: 12px;
+    margin-left: 4px;
+    margin-right: 8px;
     margin-bottom: 10px;
     box-sizing: border-box;
-    width: calc(100% - 18px);
+    width: calc(100% - 12px);
   }
 
   .tv-header {
@@ -813,23 +782,17 @@ header {
     padding: 4px 6px;
   }
 
-  .fs-close-btn {
-    top: 10px;
-    right: 10px;
-    font-size: 10px;
-    padding: 4px 6px;
-  }
 
   /* PANEL DE CONTROL: Compacto y apilado para evitar desbordes */
   .control-box {
     padding: 10px;
     border-width: 3px;
     box-shadow: 4px 4px 0px #000;
-    margin-left: 6px;
-    margin-right: 12px;
+    margin-left: 4px;
+    margin-right: 8px;
     margin-bottom: 10px;
     box-sizing: border-box;
-    width: calc(100% - 18px);
+    width: calc(100% - 12px);
   }
 
   .control-box h2 {
@@ -867,11 +830,11 @@ header {
     padding: 10px;
     border-width: 3px;
     box-shadow: 4px 4px 0px #000;
-    margin-left: 6px;
-    margin-right: 12px;
+    margin-left: 4px;
+    margin-right: 8px;
     margin-bottom: 10px;
     box-sizing: border-box;
-    width: calc(100% - 18px);
+    width: calc(100% - 12px);
     max-height: 340px;
   }
 

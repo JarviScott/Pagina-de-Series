@@ -33,7 +33,6 @@ const tvPowerBtn = document.getElementById("tv-power");
 const tvPrevBtn = document.getElementById("tv-prev");
 const tvNextBtn = document.getElementById("tv-next");
 const fullscreenBtn = document.getElementById("fullscreen-btn");
-const fsCloseBtn = document.getElementById("fs-close-btn");
 
 // watched list, bandera de restauración y estado de energía
 let tvPowerOn = true;
@@ -439,28 +438,16 @@ if (tvNextBtn) {
   });
 }
 
-// Botón de PANTALLA COMPLETA (sobre el screenWrapper para arrastrar nuestro botón de cierre)
+// Botón de PANTALLA COMPLETA directo en el Iframe (Google Drive manda en pantalla completa)
 if (fullscreenBtn) {
   fullscreenBtn.addEventListener("click", () => {
     playBlipSound();
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      if (screenWrapper.requestFullscreen) {
-        screenWrapper.requestFullscreen();
-      } else if (screenWrapper.webkitRequestFullscreen) {
-        screenWrapper.webkitRequestFullscreen();
-      }
-    }
-  });
-}
-
-// Botón flotante para CERRAR PANTALLA COMPLETA
-if (fsCloseBtn) {
-  fsCloseBtn.addEventListener("click", () => {
-    playBlipSound();
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
+    if (videoPlayer.requestFullscreen) {
+      videoPlayer.requestFullscreen();
+    } else if (videoPlayer.webkitRequestFullscreen) {
+      videoPlayer.webkitRequestFullscreen();
+    } else if (videoPlayer.msRequestFullscreen) {
+      videoPlayer.msRequestFullscreen();
     }
   });
 }
@@ -710,4 +697,15 @@ function showFatalError(errorText) {
   console.error(errorText);
   errorDetailsText.textContent = `MENSAJE: ${errorText}`;
   errorScreen.style.display = "block";
+}
+
+// Registro del Service Worker para soporte PWA (Instalación en pantalla de inicio)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('Service Worker registrado con éxito:', reg.scope);
+    }).catch(err => {
+      console.error('Fallo al registrar el Service Worker:', err);
+    });
+  });
 }

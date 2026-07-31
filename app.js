@@ -727,8 +727,19 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     playerContainer.appendChild(iframeElement);
   };
 
+  videoElement.addEventListener("loadedmetadata", () => {
+    hideStaticScreen();
+  });
+
   videoElement.addEventListener("loadeddata", () => {
-    // Si carga datos con éxito, ocultamos la pantalla estática
+    hideStaticScreen();
+  });
+
+  videoElement.addEventListener("canplay", () => {
+    hideStaticScreen();
+  });
+
+  videoElement.addEventListener("play", () => {
     hideStaticScreen();
   });
 

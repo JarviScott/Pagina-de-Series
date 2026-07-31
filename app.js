@@ -672,6 +672,7 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   const videoElement = document.createElement("video");
   videoElement.id = "video-player-native";
   videoElement.controls = false; // Desactivar controles al inicio para evitar que se trasluzcan
+  videoElement.crossOrigin = "anonymous";
   videoElement.playsInline = true;
   videoElement.style.width = "100%";
   videoElement.style.height = "100%";
@@ -717,9 +718,14 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   });
 
   let fallbackTriggered = false;
+  let playbackStarted = false;
 
   const triggerFallback = () => {
     if (fallbackTriggered) return;
+    if (playbackStarted) {
+      console.log("El video ya ha comenzado a reproducirse, se ignora el error temporal.");
+      return;
+    }
     fallbackTriggered = true;
     console.warn("Fallo la reproducción nativa, usando fallback de Iframe.");
     
@@ -745,6 +751,7 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   };
 
   const handlePlayStart = () => {
+    playbackStarted = true;
     videoElement.controls = true;
     hideStaticScreen();
   };
@@ -770,12 +777,6 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     triggerFallback();
   });
 
-  // Temporizador de seguridad: si no ha cargado en 6 segundos, usar fallback
-  setTimeout(() => {
-    if (!fallbackTriggered && videoElement.readyState < 2) {
-      triggerFallback();
-    }
-  }, 6000);
 
   playerContainer.appendChild(videoElement);
 

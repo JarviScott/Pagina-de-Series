@@ -711,6 +711,9 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     iframeElement.id = "video-player-iframe";
     iframeElement.className = "video-player-iframe";
     iframeElement.src = `https://drive.google.com/file/d/${fileId}/preview`;
+    iframeElement.setAttribute("width", "100%");
+    iframeElement.setAttribute("height", "100%");
+    iframeElement.setAttribute("scrolling", "no");
     iframeElement.style.width = "100%";
     iframeElement.style.height = "100%";
     iframeElement.style.border = "none";

@@ -147,6 +147,23 @@ function playPowerSound(isOn) {
 // Inicialización del sistema
 document.addEventListener("DOMContentLoaded", () => {
   initApp();
+
+  // Escuchar clics en la pantalla estática para reanudar/reproducir si el autoplay es bloqueado
+  const staticScreen = document.getElementById("static-screen");
+  if (staticScreen) {
+    staticScreen.addEventListener("click", () => {
+      const nativePlayer = document.getElementById("video-player-native");
+      if (nativePlayer && nativePlayer.paused) {
+        playBlipSound();
+        nativePlayer.play().then(() => {
+          nativePlayer.controls = true;
+          hideStaticScreen();
+        }).catch(err => {
+          console.error("Fallo al iniciar reproducción tras interacción:", err);
+        });
+      }
+    });
+  }
 });
 
 /**
@@ -654,7 +671,7 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   const videoUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
   const videoElement = document.createElement("video");
   videoElement.id = "video-player-native";
-  videoElement.controls = true;
+  videoElement.controls = false; // Desactivar controles al inicio para evitar que se trasluzcan
   videoElement.playsInline = true;
   videoElement.style.width = "100%";
   videoElement.style.height = "100%";
@@ -727,20 +744,21 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     playerContainer.appendChild(iframeElement);
   };
 
-  videoElement.addEventListener("loadedmetadata", () => {
+  const handlePlayStart = () => {
+    videoElement.controls = true;
     hideStaticScreen();
-  });
+  };
 
-  videoElement.addEventListener("loadeddata", () => {
-    hideStaticScreen();
-  });
+  videoElement.addEventListener("play", handlePlayStart);
+  videoElement.addEventListener("playing", handlePlayStart);
 
   videoElement.addEventListener("canplay", () => {
-    hideStaticScreen();
-  });
-
-  videoElement.addEventListener("play", () => {
-    hideStaticScreen();
+    if (videoElement.paused) {
+      staticScreenText.innerHTML = "SEÑAL LISTA<br><br>PULSA PARA REPRODUCIR";
+      staticScreen.style.pointerEvents = "auto";
+    } else {
+      handlePlayStart();
+    }
   });
 
   // Si ocurre un error al intentar cargar el video nativo
@@ -761,6 +779,18 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
 
   playerContainer.appendChild(videoElement);
 
+  // Intentar auto-reproducción
+  const playPromise = videoElement.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      handlePlayStart();
+    }).catch(error => {
+      console.warn("Autoplay bloqueado, esperando interacción del usuario:", error);
+      staticScreenText.innerHTML = "SEÑAL LISTA<br><br>PULSA PARA REPRODUCIR";
+      staticScreen.style.pointerEvents = "auto";
+    });
+  }
+
   // 6. Actualizar marquesina de reproducción y título superior
   const selectedSeriesName = seriesSelect.options[seriesSelect.selectedIndex].text;
   const selectedSeasonName = seasonSelect.options[seasonSelect.selectedIndex].text;
@@ -773,12 +803,12 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   }
 }
 
-// Función auxiliar para ocultar la pantalla estática CRT
 function hideStaticScreen() {
   setTimeout(() => {
     staticScreen.style.opacity = "0";
     setTimeout(() => {
       staticScreen.style.display = "none";
+      staticScreen.style.pointerEvents = "none"; // Desactivar pointer events
     }, 300);
   }, 800);
 }

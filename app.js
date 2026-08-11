@@ -164,6 +164,24 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Pausar y reanudar la animación de la marquesina con javascript para máxima compatibilidad
+  const marqueePanel = document.querySelector(".marquee-panel");
+  const marqueeContainer = document.getElementById("marquee-container");
+  if (marqueePanel && marqueeContainer) {
+    marqueePanel.addEventListener("mouseenter", () => {
+      marqueeContainer.style.animationPlayState = "paused";
+    });
+    marqueePanel.addEventListener("mouseleave", () => {
+      marqueeContainer.style.animationPlayState = "running";
+    });
+    marqueePanel.addEventListener("touchstart", () => {
+      marqueeContainer.style.animationPlayState = "paused";
+    }, { passive: true });
+    marqueePanel.addEventListener("touchend", () => {
+      marqueeContainer.style.animationPlayState = "running";
+    }, { passive: true });
+  }
 });
 
 /**

@@ -672,8 +672,10 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   };
 
   videoPlayer.onerror = () => {
-    hideStaticScreen();
-    console.error("Error al cargar el video en el reproductor nativo.");
+    staticScreenText.innerHTML = "ERROR 403<br><br>LIMITE DE DESCARGAS EXCEDIDO EN GOOGLE DRIVE";
+    staticScreen.style.opacity = "1";
+    staticScreen.style.display = "flex";
+    console.error("Error al cargar el video en el reproductor nativo (Límite de cuota excedido).");
   };
 
   // Intentar reproducir automáticamente

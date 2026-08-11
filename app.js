@@ -678,9 +678,11 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   indicatorPlay.classList.add("green");
 
   // 4. Mostrar pantalla estática brevemente simulando encendido de TV CRT
+  staticScreen.style.transition = ""; // Limpiar cualquier transición de apagado anterior
   staticScreenText.innerHTML = "CARGANDO SEÑAL...";
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
+  staticScreen.style.pointerEvents = "none";
 
   // 5. Limpiar y recrear el reproductor
   playerContainer.innerHTML = ""; // Limpiar reproductor anterior
@@ -712,25 +714,51 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     videoElement.addEventListener("canplay", restoreTime);
   }
 
-  // Escuchar actualizaciones de tiempo para guardar la posición
+  let endTransitionTriggered = false;
+
+  // Escuchar actualizaciones de tiempo para guardar la posición y animar el apagado al final
   videoElement.addEventListener("timeupdate", () => {
     if (videoElement.currentTime > 0.5) {
       playbackStarted = true;
     }
 
-    const currentTime = Math.floor(videoElement.currentTime);
+    const currentTime = videoElement.currentTime;
     const duration = videoElement.duration;
     
     if (!isNaN(duration) && duration > 0) {
+      // Animación simple de 3 segundos al finalizar el episodio
+      if (duration - currentTime <= 3 && !endTransitionTriggered) {
+        endTransitionTriggered = true;
+        playPowerSound(false);
+        videoElement.controls = false; // Ocultar controles nativos
+        
+        // Mostrar estática con transición de 3 segundos
+        staticScreenText.innerHTML = "FIN DE TRANSMISIÓN";
+        staticScreen.style.transition = "opacity 3s linear";
+        staticScreen.style.display = "flex";
+        staticScreen.style.pointerEvents = "none";
+        
+        setTimeout(() => {
+          staticScreen.style.opacity = "1";
+        }, 50);
+      }
+
+      // Desvanecer volumen en los últimos 3 segundos
+      if (endTransitionTriggered) {
+        const timeLeft = duration - currentTime;
+        videoElement.volume = Math.max(0, Math.min(1, timeLeft / 3));
+      }
+
       // Guardar posición si ha pasado de los 5 segundos y faltan más de 10 segundos para el final
-      if (currentTime > 5 && duration - currentTime > 10) {
-        if (playbackPositions[fileId] !== currentTime) {
-          playbackPositions[fileId] = currentTime;
+      const currentSecs = Math.floor(currentTime);
+      if (currentSecs > 5 && duration - currentSecs > 10) {
+        if (playbackPositions[fileId] !== currentSecs) {
+          playbackPositions[fileId] = currentSecs;
           localStorage.setItem("retroStream_playbackPositions", JSON.stringify(playbackPositions));
         }
       } 
       // Si está en los últimos 10 segundos, consideremos que terminó y limpiemos la posición
-      else if (duration - currentTime <= 10) {
+      else if (duration - currentSecs <= 10) {
         if (playbackPositions[fileId]) {
           delete playbackPositions[fileId];
           localStorage.setItem("retroStream_playbackPositions", JSON.stringify(playbackPositions));

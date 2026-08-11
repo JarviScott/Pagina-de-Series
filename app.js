@@ -148,23 +148,6 @@ function playPowerSound(isOn) {
 document.addEventListener("DOMContentLoaded", () => {
   initApp();
 
-  // Escuchar clics en la pantalla estática para reanudar/reproducir si el autoplay es bloqueado
-  const staticScreen = document.getElementById("static-screen");
-  if (staticScreen) {
-    staticScreen.addEventListener("click", () => {
-      const nativePlayer = document.getElementById("video-player-native");
-      if (nativePlayer && nativePlayer.paused) {
-        playBlipSound();
-        nativePlayer.play().then(() => {
-          nativePlayer.controls = true;
-          hideStaticScreen();
-        }).catch(err => {
-          console.error("Fallo al iniciar reproducción tras interacción:", err);
-        });
-      }
-    });
-  }
-
   // Pausar y reanudar la animación de la marquesina con javascript para máxima compatibilidad
   const marqueePanel = document.querySelector(".marquee-panel");
   const marqueeContainer = document.getElementById("marquee-container");
@@ -678,168 +661,31 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   indicatorPlay.classList.add("green");
 
   // 4. Mostrar pantalla estática brevemente simulando encendido de TV CRT
-  staticScreen.style.transition = ""; // Limpiar cualquier transición de apagado anterior
   staticScreenText.innerHTML = "CARGANDO SEÑAL...";
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
-  staticScreen.style.pointerEvents = "none";
 
-  // 5. Limpiar y recrear el reproductor
+  // 5. Configurar el origen del reproductor de video con el visor de Drive (Iframe Original y Estable)
   playerContainer.innerHTML = ""; // Limpiar reproductor anterior
 
-  // Intentar reproducir con tag <video> nativo (más limpio, sin UI de Drive, controles nativos)
-  const videoUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
-  const videoElement = document.createElement("video");
-  videoElement.id = "video-player-native";
-  videoElement.controls = false; // Desactivar controles al inicio para evitar que se trasluzcan
-  videoElement.crossOrigin = "anonymous";
-  videoElement.playsInline = true;
-  videoElement.style.width = "100%";
-  videoElement.style.height = "100%";
-  videoElement.style.backgroundColor = "#000";
-  videoElement.style.objectFit = "contain";
-
-  const sourceElement = document.createElement("source");
-  sourceElement.src = videoUrl;
-  sourceElement.type = "video/mp4";
-  videoElement.appendChild(sourceElement);
-
-  // Restaurar posición de reproducción guardada si existe
-  const savedTime = playbackPositions[fileId];
-  if (savedTime) {
-    const restoreTime = () => {
-      videoElement.currentTime = savedTime;
-      videoElement.removeEventListener("canplay", restoreTime);
-    };
-    videoElement.addEventListener("canplay", restoreTime);
-  }
-
-  let endTransitionTriggered = false;
-
-  // Escuchar actualizaciones de tiempo para guardar la posición y animar el apagado al final
-  videoElement.addEventListener("timeupdate", () => {
-    if (videoElement.currentTime > 0.5) {
-      playbackStarted = true;
-    }
-
-    const currentTime = videoElement.currentTime;
-    const duration = videoElement.duration;
-    
-    if (!isNaN(duration) && duration > 0) {
-      // Animación simple de 3 segundos al finalizar el episodio (solo si ya se ha reproducido más de 5s)
-      if (currentTime > 5 && duration - currentTime <= 3 && !endTransitionTriggered) {
-        endTransitionTriggered = true;
-        playPowerSound(false);
-        videoElement.controls = false; // Ocultar controles nativos
-        
-        // Mostrar estática con transición de 3 segundos
-        staticScreenText.innerHTML = "FIN DE TRANSMISIÓN";
-        staticScreen.style.transition = "opacity 3s linear";
-        staticScreen.style.display = "flex";
-        staticScreen.style.pointerEvents = "none";
-        
-        setTimeout(() => {
-          staticScreen.style.opacity = "1";
-        }, 50);
-      }
-
-      // Desvanecer volumen en los últimos 3 segundos
-      if (endTransitionTriggered) {
-        const timeLeft = duration - currentTime;
-        videoElement.volume = Math.max(0, Math.min(1, timeLeft / 3));
-      }
-
-      // Guardar posición si ha pasado de los 5 segundos y faltan más de 10 segundos para el final
-      const currentSecs = Math.floor(currentTime);
-      if (currentSecs > 5 && duration - currentSecs > 10) {
-        if (playbackPositions[fileId] !== currentSecs) {
-          playbackPositions[fileId] = currentSecs;
-          localStorage.setItem("retroStream_playbackPositions", JSON.stringify(playbackPositions));
-        }
-      } 
-      // Si está en los últimos 10 segundos, consideremos que terminó y limpiemos la posición
-      else if (duration - currentSecs <= 10) {
-        if (playbackPositions[fileId]) {
-          delete playbackPositions[fileId];
-          localStorage.setItem("retroStream_playbackPositions", JSON.stringify(playbackPositions));
-        }
-      }
-    }
-  });
-
-  let fallbackTriggered = false;
-  let playbackStarted = false;
-
-  const triggerFallback = () => {
-    if (fallbackTriggered) return;
-    if (playbackStarted) {
-      console.log("El video ya ha comenzado a reproducirse, se ignora el error temporal.");
-      return;
-    }
-    fallbackTriggered = true;
-    console.warn("Fallo la reproducción nativa, usando fallback de Iframe.");
-    
-    playerContainer.innerHTML = "";
-    const iframeElement = document.createElement("iframe");
-    iframeElement.id = "video-player-iframe";
-    iframeElement.className = "video-player-iframe";
-    iframeElement.src = `https://drive.google.com/file/d/${fileId}/preview`;
-    iframeElement.setAttribute("width", "100%");
-    iframeElement.setAttribute("height", "100%");
-    iframeElement.setAttribute("scrolling", "no");
-    iframeElement.style.width = "100%";
-    iframeElement.style.height = "100%";
-    iframeElement.style.border = "none";
-    iframeElement.allow = "autoplay; encrypted-media";
-    iframeElement.allowFullscreen = true;
-    
-    iframeElement.onload = () => {
-      hideStaticScreen();
-    };
-    
-    playerContainer.appendChild(iframeElement);
-  };
-
-  const handlePlayStart = () => {
-    videoElement.controls = true;
+  const iframeElement = document.createElement("iframe");
+  iframeElement.id = "video-player-iframe";
+  iframeElement.className = "video-player-iframe";
+  iframeElement.src = `https://drive.google.com/file/d/${fileId}/preview`;
+  iframeElement.setAttribute("width", "100%");
+  iframeElement.setAttribute("height", "100%");
+  iframeElement.setAttribute("scrolling", "no");
+  iframeElement.style.width = "100%";
+  iframeElement.style.height = "100%";
+  iframeElement.style.border = "none";
+  iframeElement.allow = "autoplay; encrypted-media";
+  iframeElement.allowFullscreen = true;
+  
+  iframeElement.onload = () => {
     hideStaticScreen();
   };
-
-  videoElement.addEventListener("play", handlePlayStart);
-  videoElement.addEventListener("playing", handlePlayStart);
-
-  videoElement.addEventListener("canplay", () => {
-    if (videoElement.paused) {
-      staticScreenText.innerHTML = "SEÑAL LISTA<br><br>PULSA PARA REPRODUCIR";
-      staticScreen.style.pointerEvents = "auto";
-    } else {
-      handlePlayStart();
-    }
-  });
-
-  // Si ocurre un error al intentar cargar el video nativo
-  videoElement.addEventListener("error", () => {
-    triggerFallback();
-  });
   
-  sourceElement.addEventListener("error", () => {
-    triggerFallback();
-  });
-
-
-  playerContainer.appendChild(videoElement);
-
-  // Intentar auto-reproducción
-  const playPromise = videoElement.play();
-  if (playPromise !== undefined) {
-    playPromise.then(() => {
-      handlePlayStart();
-    }).catch(error => {
-      console.warn("Autoplay bloqueado, esperando interacción del usuario:", error);
-      staticScreenText.innerHTML = "SEÑAL LISTA<br><br>PULSA PARA REPRODUCIR";
-      staticScreen.style.pointerEvents = "auto";
-    });
-  }
+  playerContainer.appendChild(iframeElement);
 
   // 6. Actualizar marquesina de reproducción y título superior
   const selectedSeriesName = seriesSelect.options[seriesSelect.selectedIndex].text;

@@ -156,12 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (nativePlayer && nativePlayer.paused) {
         playBlipSound();
         nativePlayer.play().then(() => {
-          if (nativePlayer.currentTime >= 3) {
-            nativePlayer.controls = true;
-            hideStaticScreen();
-          } else {
-            staticScreen.style.pointerEvents = "none";
-          }
+          nativePlayer.controls = true;
+          hideStaticScreen();
         }).catch(err => {
           console.error("Fallo al iniciar reproducción tras interacción:", err);
         });
@@ -404,25 +400,16 @@ if (tvPowerBtn) {
       tvPowerBtn.classList.add("off");
       playPowerSound(false);
       
-      // Detener indicadores
+      // Detener video e indicadores
+      playerContainer.innerHTML = "";
       indicatorPlay.classList.remove("green", "red");
       
-      // Detener video con animación
-      const activePlayer = document.getElementById("video-player-native") || document.getElementById("video-player-iframe");
-      if (activePlayer) {
-        playerContainer.className = "crt-turn-off";
-      }
-      
-      // Apagar pantalla (negro absoluto, sin ruido) tras la animación
-      setTimeout(() => {
-        playerContainer.innerHTML = "";
-        playerContainer.className = "";
-        staticScreen.style.backgroundImage = "none";
-        staticScreen.style.backgroundColor = "#000";
-        staticScreenText.innerHTML = "";
-        staticScreen.style.opacity = "1";
-        staticScreen.style.display = "flex";
-      }, activePlayer ? 600 : 0);
+      // Apagar pantalla (negro absoluto, sin ruido)
+      staticScreen.style.backgroundImage = "none";
+      staticScreen.style.backgroundColor = "#000";
+      staticScreenText.innerHTML = "";
+      staticScreen.style.opacity = "1";
+      staticScreen.style.display = "flex";
       
       const topTitle = document.getElementById("current-episode-title-top");
       if (topTitle) {
@@ -690,75 +677,25 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   indicatorPlay.classList.remove("red");
   indicatorPlay.classList.add("green");
 
-  // Transición de apagado si hay un reproductor activo
-  const activePlayer = document.getElementById("video-player-native") || document.getElementById("video-player-iframe");
-  if (activePlayer) {
-    playPowerSound(false);
-    playerContainer.className = "crt-turn-off";
-    
-    // Mostrar estática intermedia
-    staticScreenText.innerHTML = "SINTONIZANDO...";
-    staticScreen.style.display = "flex";
-    staticScreen.style.opacity = "1";
-    staticScreen.style.pointerEvents = "auto";
-    
-    setTimeout(() => {
-      actuallyLoadEpisode(fileId, cleanTitle, selectedCard);
-    }, 600);
-  } else {
-    actuallyLoadEpisode(fileId, cleanTitle, selectedCard);
-  }
-}
-
-function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
-  // Asegurar que el contenedor empiece apagado (crt-off)
-  playerContainer.className = "crt-off";
-
-  // Mostrar pantalla estática simulación sintonización
-  staticScreenText.innerHTML = "SINTONIZANDO SEÑAL...";
+  // 4. Mostrar pantalla estática brevemente simulando encendido de TV CRT
+  staticScreenText.innerHTML = "CARGANDO SEÑAL...";
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
-  staticScreen.style.pointerEvents = "none"; // Desactivar clics durante carga
 
-  // Limpiar y recrear el reproductor
-  playerContainer.innerHTML = ""; 
+  // 5. Limpiar y recrear el reproductor
+  playerContainer.innerHTML = ""; // Limpiar reproductor anterior
 
-  let turnOnTriggered = false;
-  let turnOffTriggered = false;
-  let fallbackTriggered = false;
-  let playbackStarted = false;
-  let turnOnTimeout = null;
-
-  const triggerTurnOn = () => {
-    if (turnOnTriggered) return;
-    turnOnTriggered = true;
-    playPowerSound(true);
-    playerContainer.className = "crt-turn-on";
-    if (!fallbackTriggered && videoElement) {
-      videoElement.controls = true;
-    }
-    hideStaticScreen();
-  };
-
-  const startWarmUp = () => {
-    if (turnOnTimeout || turnOnTriggered) return;
-    turnOnTimeout = setTimeout(() => {
-      triggerTurnOn();
-    }, 3000);
-  };
-
-  // Intentar reproducir con tag <video> nativo
+  // Intentar reproducir con tag <video> nativo (más limpio, sin UI de Drive, controles nativos)
   const videoUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
   const videoElement = document.createElement("video");
   videoElement.id = "video-player-native";
-  videoElement.controls = false; // Desactivar controles al inicio
+  videoElement.controls = false; // Desactivar controles al inicio para evitar que se trasluzcan
   videoElement.crossOrigin = "anonymous";
   videoElement.playsInline = true;
   videoElement.style.width = "100%";
   videoElement.style.height = "100%";
   videoElement.style.backgroundColor = "#000";
   videoElement.style.objectFit = "contain";
-  videoElement.volume = 1.0;
 
   const sourceElement = document.createElement("source");
   sourceElement.src = videoUrl;
@@ -775,43 +712,20 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
     videoElement.addEventListener("canplay", restoreTime);
   }
 
-  // Escuchar actualizaciones de tiempo para guardar posición y controlar animaciones CRT
+  // Escuchar actualizaciones de tiempo para guardar la posición
   videoElement.addEventListener("timeupdate", () => {
-    const currentTime = videoElement.currentTime;
-    const duration = videoElement.duration;
-
-    if (currentTime > 0.5) {
+    if (videoElement.currentTime > 0.5) {
       playbackStarted = true;
-      if (currentTime >= 3) {
-        triggerTurnOn();
-      }
     }
 
+    const currentTime = Math.floor(videoElement.currentTime);
+    const duration = videoElement.duration;
+    
     if (!isNaN(duration) && duration > 0) {
-      // 2. Animación de APAGADO en los últimos 3 segundos
-      if (duration - currentTime <= 3 && !turnOffTriggered) {
-        turnOffTriggered = true;
-        playPowerSound(false);
-        playerContainer.className = "crt-turn-off";
-        videoElement.controls = false; // Ocultar controles
-        staticScreenText.innerHTML = "FIN DE TRANSMISIÓN";
-        staticScreen.style.display = "flex";
-        setTimeout(() => {
-          staticScreen.style.opacity = "1";
-        }, 50);
-      }
-
-      // Desvanecer volumen en los últimos 3 segundos
-      if (turnOffTriggered) {
-        const timeLeft = duration - currentTime;
-        videoElement.volume = Math.max(0, Math.min(1, timeLeft / 3));
-      }
-
-      // Guardar posición si ha pasado de los 3 segundos y faltan más de 10 segundos para el final
-      if (currentTime > 3 && duration - currentTime > 10) {
-        const currentSecs = Math.floor(currentTime);
-        if (playbackPositions[fileId] !== currentSecs) {
-          playbackPositions[fileId] = currentSecs;
+      // Guardar posición si ha pasado de los 5 segundos y faltan más de 10 segundos para el final
+      if (currentTime > 5 && duration - currentTime > 10) {
+        if (playbackPositions[fileId] !== currentTime) {
+          playbackPositions[fileId] = currentTime;
           localStorage.setItem("retroStream_playbackPositions", JSON.stringify(playbackPositions));
         }
       } 
@@ -824,6 +738,9 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
       }
     }
   });
+
+  let fallbackTriggered = false;
+  let playbackStarted = false;
 
   const triggerFallback = () => {
     if (fallbackTriggered) return;
@@ -849,26 +766,26 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
     iframeElement.allowFullscreen = true;
     
     iframeElement.onload = () => {
-      staticScreenText.innerHTML = "SEÑAL ESTABLECIDA<br><br>CALENTANDO TUBO...";
-      
-      // Temporizador de 3 segundos para encender la TV en Iframe
-      setTimeout(() => {
-        if (fallbackTriggered) {
-          triggerTurnOn();
-        }
-      }, 3000);
+      hideStaticScreen();
     };
     
     playerContainer.appendChild(iframeElement);
   };
 
-  videoElement.addEventListener("play", startWarmUp);
-  videoElement.addEventListener("playing", startWarmUp);
+  const handlePlayStart = () => {
+    videoElement.controls = true;
+    hideStaticScreen();
+  };
+
+  videoElement.addEventListener("play", handlePlayStart);
+  videoElement.addEventListener("playing", handlePlayStart);
 
   videoElement.addEventListener("canplay", () => {
     if (videoElement.paused) {
       staticScreenText.innerHTML = "SEÑAL LISTA<br><br>PULSA PARA REPRODUCIR";
       staticScreen.style.pointerEvents = "auto";
+    } else {
+      handlePlayStart();
     }
   });
 
@@ -881,13 +798,14 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
     triggerFallback();
   });
 
+
   playerContainer.appendChild(videoElement);
 
   // Intentar auto-reproducción
   const playPromise = videoElement.play();
   if (playPromise !== undefined) {
     playPromise.then(() => {
-      startWarmUp();
+      handlePlayStart();
     }).catch(error => {
       console.warn("Autoplay bloqueado, esperando interacción del usuario:", error);
       staticScreenText.innerHTML = "SEÑAL LISTA<br><br>PULSA PARA REPRODUCIR";

@@ -664,11 +664,16 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
 
-  // 5. Configurar el origen del reproductor de video nativo con el link directo de Google Drive
-  videoPlayer.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  // 5. Configurar el origen del reproductor de video nativo con el flujo directo de Google Drive API
+  videoPlayer.src = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
   
   videoPlayer.oncanplay = () => {
     hideStaticScreen();
+  };
+
+  videoPlayer.onerror = () => {
+    hideStaticScreen();
+    console.error("Error al cargar el video en el reproductor nativo.");
   };
 
   // Intentar reproducir automáticamente

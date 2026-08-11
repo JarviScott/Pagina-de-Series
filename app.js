@@ -240,7 +240,7 @@ async function handleSeriesChange(seriesId) {
   }
   indicatorPlay.classList.remove("green");
   indicatorPlay.classList.add("red");
-  playerContainer.innerHTML = "";
+  videoPlayer.src = "";
   staticScreenText.innerHTML = "INSERT COIN<br><br>SELECCIONA UN CAPITULO";
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
@@ -298,7 +298,7 @@ async function handleSeasonChange(seasonId) {
   }
   indicatorPlay.classList.remove("green");
   indicatorPlay.classList.add("red");
-  playerContainer.innerHTML = "";
+  videoPlayer.src = "";
   staticScreenText.innerHTML = "INSERT COIN<br><br>SELECCIONA UN CAPITULO";
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";

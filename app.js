@@ -462,14 +462,6 @@ if (fullscreenBtn) {
   fullscreenBtn.addEventListener("click", () => {
     playBlipSound();
     if (videoPlayer) {
-      // Si estamos en un dispositivo móvil, abrimos en pestaña nueva para reproductor nativo
-      if (window.innerWidth <= 768) {
-        if (videoPlayer.src) {
-          window.open(videoPlayer.src, "_blank");
-        }
-        return;
-      }
-
       if (videoPlayer.requestFullscreen) {
         videoPlayer.requestFullscreen();
       } else if (videoPlayer.webkitRequestFullscreen) {
@@ -672,12 +664,20 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
 
-  // 5. Configurar el origen del reproductor de video con el visor de Drive
-  videoPlayer.src = `https://drive.google.com/file/d/${fileId}/preview`;
+  // 5. Configurar el origen del reproductor de video nativo con el link directo de Google Drive
+  videoPlayer.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
   
-  videoPlayer.onload = () => {
+  videoPlayer.oncanplay = () => {
     hideStaticScreen();
   };
+
+  // Intentar reproducir automáticamente
+  const playPromise = videoPlayer.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      console.warn("Autoplay bloqueado:", error);
+    });
+  }
 
   // 6. Actualizar marquesina de reproducción y título superior
   const selectedSeriesName = seriesSelect.options[seriesSelect.selectedIndex].text;

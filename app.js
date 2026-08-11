@@ -19,7 +19,7 @@ const seriesSelect = document.getElementById("series-select");
 const seasonSelect = document.getElementById("season-select");
 const episodeSearch = document.getElementById("episode-search");
 const episodesListContainer = document.getElementById("episodes-list");
-const playerContainer = document.getElementById("player-container");
+const videoPlayer = document.getElementById("video-player");
 const staticScreen = document.getElementById("static-screen");
 const staticScreenText = document.getElementById("static-screen-text");
 const indicatorPlay = document.getElementById("indicator-play");
@@ -384,7 +384,7 @@ if (tvPowerBtn) {
       playPowerSound(false);
       
       // Detener video e indicadores
-      playerContainer.innerHTML = "";
+      videoPlayer.src = "";
       indicatorPlay.classList.remove("green", "red");
       
       // Apagar pantalla (negro absoluto, sin ruido)
@@ -461,14 +461,13 @@ if (tvNextBtn) {
 if (fullscreenBtn) {
   fullscreenBtn.addEventListener("click", () => {
     playBlipSound();
-    const activePlayer = document.getElementById("video-player-native") || document.getElementById("video-player-iframe");
-    if (activePlayer) {
-      if (activePlayer.requestFullscreen) {
-        activePlayer.requestFullscreen();
-      } else if (activePlayer.webkitRequestFullscreen) {
-        activePlayer.webkitRequestFullscreen();
-      } else if (activePlayer.msRequestFullscreen) {
-        activePlayer.msRequestFullscreen();
+    if (videoPlayer) {
+      if (videoPlayer.requestFullscreen) {
+        videoPlayer.requestFullscreen();
+      } else if (videoPlayer.webkitRequestFullscreen) {
+        videoPlayer.webkitRequestFullscreen();
+      } else if (videoPlayer.msRequestFullscreen) {
+        videoPlayer.msRequestFullscreen();
       }
     }
   });
@@ -665,27 +664,12 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
 
-  // 5. Configurar el origen del reproductor de video con el visor de Drive (Iframe Original y Estable)
-  playerContainer.innerHTML = ""; // Limpiar reproductor anterior
-
-  const iframeElement = document.createElement("iframe");
-  iframeElement.id = "video-player-iframe";
-  iframeElement.className = "video-player-iframe";
-  iframeElement.src = `https://drive.google.com/file/d/${fileId}/preview`;
-  iframeElement.setAttribute("width", "100%");
-  iframeElement.setAttribute("height", "100%");
-  iframeElement.setAttribute("scrolling", "no");
-  iframeElement.style.width = "100%";
-  iframeElement.style.height = "100%";
-  iframeElement.style.border = "none";
-  iframeElement.allow = "autoplay; encrypted-media";
-  iframeElement.allowFullscreen = true;
+  // 5. Configurar el origen del reproductor de video con el visor de Drive
+  videoPlayer.src = `https://drive.google.com/file/d/${fileId}/preview`;
   
-  iframeElement.onload = () => {
+  videoPlayer.onload = () => {
     hideStaticScreen();
   };
-  
-  playerContainer.appendChild(iframeElement);
 
   // 6. Actualizar marquesina de reproducción y título superior
   const selectedSeriesName = seriesSelect.options[seriesSelect.selectedIndex].text;

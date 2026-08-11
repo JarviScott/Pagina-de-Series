@@ -726,8 +726,8 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     const duration = videoElement.duration;
     
     if (!isNaN(duration) && duration > 0) {
-      // Animación simple de 3 segundos al finalizar el episodio
-      if (duration - currentTime <= 3 && !endTransitionTriggered) {
+      // Animación simple de 3 segundos al finalizar el episodio (solo si ya se ha reproducido más de 5s)
+      if (currentTime > 5 && duration - currentTime <= 3 && !endTransitionTriggered) {
         endTransitionTriggered = true;
         playPowerSound(false);
         videoElement.controls = false; // Ocultar controles nativos

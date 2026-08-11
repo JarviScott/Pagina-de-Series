@@ -951,7 +951,7 @@ header {
   .tv-chassis {
     width: 100% !important;
     margin: 0 auto 10px auto !important;
-    max-width: 640px;
+    max-width: 480px;
   }
 
   .navigation-panel {

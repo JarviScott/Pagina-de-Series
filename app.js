@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (nativePlayer && nativePlayer.paused) {
         playBlipSound();
         nativePlayer.play().then(() => {
-          if (nativePlayer.currentTime >= 5) {
+          if (nativePlayer.currentTime >= 3) {
             nativePlayer.controls = true;
             hideStaticScreen();
           } else {
@@ -765,8 +765,8 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
       playbackStarted = true;
     }
 
-    // 1. Animación de ENCENDIDO a los 5 segundos de empezar
-    if (currentTime >= 5 && !turnOnTriggered) {
+    // 1. Animación de ENCENDIDO a los 3 segundos de empezar
+    if (currentTime >= 3 && !turnOnTriggered) {
       turnOnTriggered = true;
       playPowerSound(true);
       playerContainer.className = "crt-turn-on";
@@ -775,8 +775,8 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
     }
 
     if (!isNaN(duration) && duration > 0) {
-      // 2. Animación de APAGADO en los últimos 5 segundos
-      if (duration - currentTime <= 5 && !turnOffTriggered) {
+      // 2. Animación de APAGADO en los últimos 3 segundos
+      if (duration - currentTime <= 3 && !turnOffTriggered) {
         turnOffTriggered = true;
         playPowerSound(false);
         playerContainer.className = "crt-turn-off";
@@ -788,14 +788,14 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
         }, 50);
       }
 
-      // Desvanecer volumen en los últimos 5 segundos
+      // Desvanecer volumen en los últimos 3 segundos
       if (turnOffTriggered) {
         const timeLeft = duration - currentTime;
-        videoElement.volume = Math.max(0, Math.min(1, timeLeft / 5));
+        videoElement.volume = Math.max(0, Math.min(1, timeLeft / 3));
       }
 
-      // Guardar posición si ha pasado de los 5 segundos y faltan más de 10 segundos para el final
-      if (currentTime > 5 && duration - currentTime > 10) {
+      // Guardar posición si ha pasado de los 3 segundos y faltan más de 10 segundos para el final
+      if (currentTime > 3 && duration - currentTime > 10) {
         const currentSecs = Math.floor(currentTime);
         if (playbackPositions[fileId] !== currentSecs) {
           playbackPositions[fileId] = currentSecs;
@@ -838,7 +838,7 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
     iframeElement.onload = () => {
       staticScreenText.innerHTML = "SEÑAL ESTABLECIDA<br><br>CALENTANDO TUBO...";
       
-      // Temporizador de 5 segundos para encender la TV en Iframe
+      // Temporizador de 3 segundos para encender la TV en Iframe
       setTimeout(() => {
         if (fallbackTriggered && !turnOnTriggered) {
           turnOnTriggered = true;
@@ -846,15 +846,15 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
           playerContainer.className = "crt-turn-on";
           hideStaticScreen();
         }
-      }, 5000);
+      }, 3000);
     };
     
     playerContainer.appendChild(iframeElement);
   };
 
   const handlePlayStart = () => {
-    // Si ya pasaron 5 segundos, asegurar encendido inmediato (por si se reanuda tras pausa)
-    if (videoElement.currentTime >= 5) {
+    // Si ya pasaron 3 segundos, asegurar encendido inmediato (por si se reanuda tras pausa)
+    if (videoElement.currentTime >= 3) {
       videoElement.controls = true;
       hideStaticScreen();
     }

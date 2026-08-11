@@ -130,6 +130,7 @@ header {
 .player-panel {
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Evita desbordamiento y ensanchamiento que comprima la columna derecha */
 }
 
 .tv-chassis {
@@ -308,6 +309,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0; /* Evita desbordamiento que comprima la columna */
 }
 
 .control-box {

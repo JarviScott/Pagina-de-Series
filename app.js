@@ -669,7 +669,7 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   playerContainer.innerHTML = ""; // Limpiar reproductor anterior
 
   // Intentar reproducir con tag <video> nativo (más limpio, sin UI de Drive, controles nativos)
-  const videoUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
+  const videoUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
   const videoElement = document.createElement("video");
   videoElement.id = "video-player-native";
   videoElement.controls = true;

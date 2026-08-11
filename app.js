@@ -696,6 +696,10 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
 
   // Escuchar actualizaciones de tiempo para guardar la posición
   videoElement.addEventListener("timeupdate", () => {
+    if (videoElement.currentTime > 0.5) {
+      playbackStarted = true;
+    }
+
     const currentTime = Math.floor(videoElement.currentTime);
     const duration = videoElement.duration;
     
@@ -751,7 +755,6 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   };
 
   const handlePlayStart = () => {
-    playbackStarted = true;
     videoElement.controls = true;
     hideStaticScreen();
   };

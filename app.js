@@ -727,6 +727,25 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
   let turnOffTriggered = false;
   let fallbackTriggered = false;
   let playbackStarted = false;
+  let turnOnTimeout = null;
+
+  const triggerTurnOn = () => {
+    if (turnOnTriggered) return;
+    turnOnTriggered = true;
+    playPowerSound(true);
+    playerContainer.className = "crt-turn-on";
+    if (!fallbackTriggered && videoElement) {
+      videoElement.controls = true;
+    }
+    hideStaticScreen();
+  };
+
+  const startWarmUp = () => {
+    if (turnOnTimeout || turnOnTriggered) return;
+    turnOnTimeout = setTimeout(() => {
+      triggerTurnOn();
+    }, 3000);
+  };
 
   // Intentar reproducir con tag <video> nativo
   const videoUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
@@ -763,15 +782,9 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
 
     if (currentTime > 0.5) {
       playbackStarted = true;
-    }
-
-    // 1. Animación de ENCENDIDO a los 3 segundos de empezar
-    if (currentTime >= 3 && !turnOnTriggered) {
-      turnOnTriggered = true;
-      playPowerSound(true);
-      playerContainer.className = "crt-turn-on";
-      videoElement.controls = true; // Activar controles nativos al encender
-      hideStaticScreen();
+      if (currentTime >= 3) {
+        triggerTurnOn();
+      }
     }
 
     if (!isNaN(duration) && duration > 0) {
@@ -840,11 +853,8 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
       
       // Temporizador de 3 segundos para encender la TV en Iframe
       setTimeout(() => {
-        if (fallbackTriggered && !turnOnTriggered) {
-          turnOnTriggered = true;
-          playPowerSound(true);
-          playerContainer.className = "crt-turn-on";
-          hideStaticScreen();
+        if (fallbackTriggered) {
+          triggerTurnOn();
         }
       }, 3000);
     };
@@ -852,16 +862,8 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
     playerContainer.appendChild(iframeElement);
   };
 
-  const handlePlayStart = () => {
-    // Si ya pasaron 3 segundos, asegurar encendido inmediato (por si se reanuda tras pausa)
-    if (videoElement.currentTime >= 3) {
-      videoElement.controls = true;
-      hideStaticScreen();
-    }
-  };
-
-  videoElement.addEventListener("play", handlePlayStart);
-  videoElement.addEventListener("playing", handlePlayStart);
+  videoElement.addEventListener("play", startWarmUp);
+  videoElement.addEventListener("playing", startWarmUp);
 
   videoElement.addEventListener("canplay", () => {
     if (videoElement.paused) {
@@ -885,7 +887,7 @@ function actuallyLoadEpisode(fileId, cleanTitle, selectedCard) {
   const playPromise = videoElement.play();
   if (playPromise !== undefined) {
     playPromise.then(() => {
-      // Dejamos que timeupdate maneje el encendido a los 5 segundos
+      startWarmUp();
     }).catch(error => {
       console.warn("Autoplay bloqueado, esperando interacción del usuario:", error);
       staticScreenText.innerHTML = "SEÑAL LISTA<br><br>PULSA PARA REPRODUCIR";

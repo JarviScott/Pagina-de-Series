@@ -19,7 +19,7 @@ const seriesSelect = document.getElementById("series-select");
 const seasonSelect = document.getElementById("season-select");
 const episodeSearch = document.getElementById("episode-search");
 const episodesListContainer = document.getElementById("episodes-list");
-const playerContainer = document.getElementById("player-container");
+const videoPlayer = document.getElementById("video-player");
 const staticScreen = document.getElementById("static-screen");
 const staticScreenText = document.getElementById("static-screen-text");
 const indicatorPlay = document.getElementById("indicator-play");
@@ -240,7 +240,7 @@ async function handleSeriesChange(seriesId) {
   }
   indicatorPlay.classList.remove("green");
   indicatorPlay.classList.add("red");
-  playerContainer.innerHTML = "";
+  videoPlayer.src = "";
   staticScreenText.innerHTML = "INSERT COIN<br><br>SELECCIONA UN CAPITULO";
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
@@ -298,7 +298,7 @@ async function handleSeasonChange(seasonId) {
   }
   indicatorPlay.classList.remove("green");
   indicatorPlay.classList.add("red");
-  playerContainer.innerHTML = "";
+  videoPlayer.src = "";
   staticScreenText.innerHTML = "INSERT COIN<br><br>SELECCIONA UN CAPITULO";
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
@@ -461,14 +461,13 @@ if (tvNextBtn) {
 if (fullscreenBtn) {
   fullscreenBtn.addEventListener("click", () => {
     playBlipSound();
-    const activePlayer = document.getElementById("video-player-native") || document.getElementById("video-player-iframe");
-    if (activePlayer) {
-      if (activePlayer.requestFullscreen) {
-        activePlayer.requestFullscreen();
-      } else if (activePlayer.webkitRequestFullscreen) {
-        activePlayer.webkitRequestFullscreen();
-      } else if (activePlayer.msRequestFullscreen) {
-        activePlayer.msRequestFullscreen();
+    if (videoPlayer) {
+      if (videoPlayer.requestFullscreen) {
+        videoPlayer.requestFullscreen();
+      } else if (videoPlayer.webkitRequestFullscreen) {
+        videoPlayer.webkitRequestFullscreen();
+      } else if (videoPlayer.msRequestFullscreen) {
+        videoPlayer.msRequestFullscreen();
       }
     }
   });
@@ -665,72 +664,20 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
   staticScreen.style.opacity = "1";
   staticScreen.style.display = "flex";
 
-  // 5. Limpiar y recrear el reproductor
-  playerContainer.innerHTML = ""; // Limpiar reproductor anterior
-
-  // Intentar reproducir con tag <video> nativo (más limpio, sin UI de Drive, controles nativos)
-  const videoUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-  const videoElement = document.createElement("video");
-  videoElement.id = "video-player-native";
-  videoElement.controls = true;
-  videoElement.playsInline = true;
-  videoElement.style.width = "100%";
-  videoElement.style.height = "100%";
-  videoElement.style.backgroundColor = "#000";
-  videoElement.style.objectFit = "contain";
-
-  const sourceElement = document.createElement("source");
-  sourceElement.src = videoUrl;
-  sourceElement.type = "video/mp4";
-  videoElement.appendChild(sourceElement);
-
-  let fallbackTriggered = false;
-
-  const triggerFallback = () => {
-    if (fallbackTriggered) return;
-    fallbackTriggered = true;
-    console.warn("Fallo la reproducción nativa, usando fallback de Iframe.");
-    
-    playerContainer.innerHTML = "";
-    const iframeElement = document.createElement("iframe");
-    iframeElement.id = "video-player-iframe";
-    iframeElement.className = "video-player-iframe";
-    iframeElement.src = `https://drive.google.com/file/d/${fileId}/preview`;
-    iframeElement.style.width = "100%";
-    iframeElement.style.height = "100%";
-    iframeElement.style.border = "none";
-    iframeElement.allow = "autoplay; encrypted-media";
-    iframeElement.allowFullscreen = true;
-    
-    iframeElement.onload = () => {
-      hideStaticScreen();
-    };
-    
-    playerContainer.appendChild(iframeElement);
+  // 5. Configurar el origen del reproductor de video nativo con el link directo de Google Drive
+  videoPlayer.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  
+  videoPlayer.oncanplay = () => {
+    hideStaticScreen();
   };
 
-  videoElement.addEventListener("loadeddata", () => {
-    // Si carga datos con éxito, ocultamos la pantalla estática
-    hideStaticScreen();
-  });
-
-  // Si ocurre un error al intentar cargar el video nativo
-  videoElement.addEventListener("error", () => {
-    triggerFallback();
-  });
-  
-  sourceElement.addEventListener("error", () => {
-    triggerFallback();
-  });
-
-  // Temporizador de seguridad: si no ha cargado en 20 segundos, usar fallback
-  setTimeout(() => {
-    if (!fallbackTriggered && videoElement.readyState < 2) {
-      triggerFallback();
-    }
-  }, 20000);
-
-  playerContainer.appendChild(videoElement);
+  // Intentar reproducir automáticamente
+  const playPromise = videoPlayer.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      console.warn("Autoplay bloqueado:", error);
+    });
+  }
 
   // 6. Actualizar marquesina de reproducción y título superior
   const selectedSeriesName = seriesSelect.options[seriesSelect.selectedIndex].text;

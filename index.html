@@ -55,8 +55,14 @@
             <div class="static-text" id="static-screen-text">INSERT COIN<br><br>SELECCIONA UN CAPITULO</div>
           </div>
           
-          <!-- Contenedor del reproductor dinámico (Video o Iframe) -->
-          <div id="player-container" style="width: 100%; height: 100%;"></div>
+          <!-- Reproductor de Video Nativo HTML5 -->
+          <video 
+            class="video-player-iframe" 
+            id="video-player" 
+            controls 
+            playsinline 
+            style="width: 100%; height: 100%; border: none; background: #000; display: block;">
+          </video>
         </div>
 
         <!-- Botones de Acción de la TV -->

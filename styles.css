@@ -277,6 +277,12 @@ header {
   overflow: hidden;
   white-space: nowrap;
   position: relative;
+  cursor: pointer;
+}
+
+/* Detener la animación cuando se pasa el cursor */
+.marquee-panel:hover .marquee-text-container {
+  animation-play-state: paused;
 }
 
 .marquee-text-container {

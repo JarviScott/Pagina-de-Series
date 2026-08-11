@@ -664,14 +664,15 @@ header {
   }
 
   .episodes-box {
-    flex-grow: 1;
+    flex-grow: 0;
     min-height: 0;
-    max-height: none; /* Quitamos el max-height fijo en PC */
+    max-height: 480px;
   }
 
   .episodes-list {
-    max-height: none;
+    max-height: 400px;
     flex-grow: 1;
+    overflow-y: auto;
   }
 }
 

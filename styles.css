@@ -23,6 +23,11 @@
 
 body {
   background-color: var(--bg-color);
+  background-image: url('img/fondo.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--text-color);
   min-height: 100vh;
   overflow-x: hidden;

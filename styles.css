@@ -936,20 +936,22 @@ header {
   }
   
   .main-grid {
-    display: grid !important;
-    grid-template-columns: 1.2fr 1fr !important;
-    gap: 15px !important;
+    display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
+    gap: 15px !important;
   }
 
   .player-panel {
     display: flex;
     flex-direction: column;
+    width: 100% !important;
   }
 
   .tv-chassis {
     width: 100% !important;
-    margin: 0 0 10px 0 !important;
+    margin: 0 auto 10px auto !important;
+    max-width: 640px;
   }
 
   .navigation-panel {

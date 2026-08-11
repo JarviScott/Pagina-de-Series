@@ -462,6 +462,14 @@ if (fullscreenBtn) {
   fullscreenBtn.addEventListener("click", () => {
     playBlipSound();
     if (videoPlayer) {
+      // Si estamos en un dispositivo móvil, abrimos en pestaña nueva para reproductor nativo
+      if (window.innerWidth <= 768) {
+        if (videoPlayer.src) {
+          window.open(videoPlayer.src, "_blank");
+        }
+        return;
+      }
+
       if (videoPlayer.requestFullscreen) {
         videoPlayer.requestFullscreen();
       } else if (videoPlayer.webkitRequestFullscreen) {

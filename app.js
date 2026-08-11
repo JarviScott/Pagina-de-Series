@@ -723,12 +723,12 @@ function selectAndPlayEpisode(fileId, cleanTitle, selectedCard) {
     triggerFallback();
   });
 
-  // Temporizador de seguridad: si no ha cargado en 6 segundos, usar fallback
+  // Temporizador de seguridad: si no ha cargado en 20 segundos, usar fallback
   setTimeout(() => {
     if (!fallbackTriggered && videoElement.readyState < 2) {
       triggerFallback();
     }
-  }, 6000);
+  }, 20000);
 
   playerContainer.appendChild(videoElement);
 
